@@ -1,0 +1,9 @@
+module.exports = {
+  development: {
+    username: "eva",
+    password: null,
+    database: "werewolves_vs_villagers",
+    host: "127.0.0.1",
+    dialect: "postgres",
+  },
+};
