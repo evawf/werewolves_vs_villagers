@@ -11,7 +11,7 @@ app.use(methodOverride("_method"));
 app.use(cookieParser());
 
 // Import db
-const db = require("./models/index.js");
+const db = require("./models/index");
 
 // Import controllers
 const Users = require("./controllers/users");

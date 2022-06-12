@@ -7,7 +7,10 @@ class UsersRouter {
   }
 
   router() {
-    router.get("/", this.controller.showHome.bind(this.controller));
+    router
+      .get("/", this.controller.showHome.bind(this.controller))
+      .post("/signup", this.controller.addUser.bind(this.controller));
+    return router;
   }
 }
 
