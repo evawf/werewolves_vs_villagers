@@ -1,6 +1,6 @@
 const Base = require("./base");
 const jsSHA = require("jssha");
-const getHash = require("../middleware");
+const { getHash } = require("../middleware");
 const SALT = process.env.MY_SALT;
 
 class Users extends Base {
@@ -9,7 +9,15 @@ class Users extends Base {
   }
 
   showHome(req, res) {
+    if (req.isUserLoggedIn === true) {
+      res.redirect("/gameHall");
+      return;
+    }
     res.render("home");
+  }
+
+  showGameHall(req, res) {
+    res.render("gameHall");
   }
 
   async addUser(req, res) {
@@ -29,22 +37,18 @@ class Users extends Base {
       });
       if (existingUser) {
         console.log("existing user!");
-        res.redirect("/");
+        res.send("Existing user!");
       } else {
         const result = await this.model.create(user);
         res.redirect("/");
       }
     } catch (error) {
       console.log("Error message:", error);
-      res.status(404).render("error", { error: "Unable to add user!" });
+      res.status(404).json({ error: "Unable to add user!" });
     }
   }
 
   async loginUser(req, res) {
-    if (req.isUserLoggedIn === true) {
-      res.redirect("/gameHall");
-      return;
-    }
     try {
       const user = await this.model.findOne({
         where: {
@@ -52,22 +56,16 @@ class Users extends Base {
         },
       });
       // User auth
-      // console.log(user.password);
       if (!user) {
-        res.status(403).render("error", {
-          error: "User is not found, please sign up first!",
-        });
+        res.send("User is not found, please sign up first!");
         return;
       }
       // Check user password
       const shaObj = new jsSHA("SHA-512", "TEXT", { encoding: "UTF8" });
       shaObj.update(req.body.password);
       const hashedPassword = shaObj.getHash("HEX");
-      // console.log(hashedPassword);
       if (user.password !== hashedPassword) {
-        res
-          .status(401)
-          .render("error", { error: "Wrong password! Please try again!" });
+        res.send("Wrong password! Please try again!");
         return;
       } else {
         // Generate the hashed cookie value
@@ -78,16 +76,16 @@ class Users extends Base {
 
         res.cookie("loggedIn", hashedCookieString);
         res.cookie("userId", user.id);
-        res.redirect("gameHall");
+        res.json({ loggedIn: true });
         return;
       }
     } catch (error) {
-      res.status(400).render("error", { error: "Bad request" });
+      res.send("Unauthoried user!");
     }
   }
 
-  showGameHall(req, res) {
-    res.render("gameHall");
+  logoutUser(req, res) {
+    res.clearCookie("loggedIn").clearCookie("userId").redirect("/");
   }
 }
 

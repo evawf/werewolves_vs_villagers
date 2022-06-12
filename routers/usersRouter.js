@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const isLoggedIn = require("../middleware");
+const { isLoggedIn } = require("../middleware");
 
 class UsersRouter {
   constructor(controller) {
@@ -16,7 +16,8 @@ class UsersRouter {
         "/gameHall",
         isLoggedIn,
         this.controller.showGameHall.bind(this.controller)
-      );
+      )
+      .get("/logout", this.controller.logoutUser.bind(this.controller));
     return router;
   }
 }

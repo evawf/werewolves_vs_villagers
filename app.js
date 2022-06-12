@@ -1,10 +1,15 @@
+const dotenv = require("dotenv");
+
+if (process.env.ENV !== "production") {
+  dotenv.config();
+}
+
 const express = require("express");
 const app = express();
 const cookieParser = require("cookie-parser");
 const methodOverride = require("method-override");
 const jsSHA = require("jssha");
-const dotenv = require("dotenv");
-const getHash = require("./middleware");
+const { getHash } = require("./middleware");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -12,10 +17,6 @@ app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.use(methodOverride("_method"));
 app.use(cookieParser());
-
-if (process.env.ENV !== "production") {
-  dotenv.config();
-}
 
 // Import db
 const db = require("./models/index");
@@ -38,6 +39,7 @@ const SALT = process.env.MY_SALT;
 app.use(async (req, res, next) => {
   req.isUserLoggedIn = false;
   res.locals.loggedIn = false;
+
   if (req.cookies.loggedIn && req.cookies.userId) {
     const hash = getHash(req.cookies.userId);
     if (req.cookies.loggedIn === hash) {
@@ -48,19 +50,20 @@ app.use(async (req, res, next) => {
           },
         });
         if (!result) {
-          res.redirect("/");
+          res.status(503).render("error", { error: "User is not found!" });
+          // res.redirect("/");
           return;
         }
-        let user = userQueryResult.rows[0];
-        req.user = userQueryResult.rows[0];
+        let user = result;
+        req.user = result;
         res.locals.currentUser = user;
         req.isUserLoggedIn = true;
         res.locals.loggedIn = true;
         next();
       } catch (error) {
         console.log("error", error);
-        return;
       }
+      return;
     }
   }
   next();
