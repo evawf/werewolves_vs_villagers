@@ -1,6 +1,5 @@
 const loginDiv = document.getElementById("loginDiv");
 const signupDiv = document.getElementById("signupDiv");
-// signupDiv.style.display = "none";
 
 // User Sign Up
 const signupBtn = document.getElementById("signupBtn");
@@ -17,7 +16,8 @@ submitBtn.addEventListener("click", async () => {
     password: document.getElementById("password_signup").value,
   };
   const result = await axios.post("/signup", userData);
-  console.log(result);
+  loginDiv.style.display = "block";
+  signupDiv.style.display = "none";
 });
 
 // User Log In

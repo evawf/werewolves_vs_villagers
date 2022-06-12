@@ -1,7 +1,9 @@
 const express = require("express");
+const app = express();
 const cookieParser = require("cookie-parser");
 const methodOverride = require("method-override");
-const app = express();
+const jsSHA = require("jssha");
+const dotenv = require("dotenv");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -9,6 +11,12 @@ app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.use(methodOverride("_method"));
 app.use(cookieParser());
+
+if (process.env.ENV !== "production") {
+  dotenv.config();
+}
+
+const SALT = process.env.MY_SALT;
 
 // Import db
 const db = require("./models/index");
