@@ -22,6 +22,11 @@ submitBtn.addEventListener("click", async () => {
 
 // User Log In
 const loginBtn = document.getElementById("loginBtn");
-loginBtn.addEventListener("click", () => {
-  const result = axios.get("/login");
+loginBtn.addEventListener("click", async () => {
+  const userData = {
+    email: document.getElementById("email_login").value,
+    password: document.getElementById("password_login").value,
+  };
+  const result = await axios.post("/login", userData);
+  console.log(result);
 });

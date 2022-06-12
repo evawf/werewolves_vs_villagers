@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -7,34 +7,39 @@
     <link rel="stylesheet" href="style.css" />
     <title>Sign up/Log in</title>
   </head>
-  <body>
-    <!-- user login -->
-    <div id="loginDiv">
-      <input type="email" id="email_login" />
-      <input type="password" id="password_login" />
-      <button id="loginBtn">LOG IN</button>
-      <button id="signupBtn">SIGN UP</button>
-    </div>
-    <!-- user sign up  -->
-    <div id="signupDiv" style="display: none">
-      <input
-        type="text"
-        name="display_name"
-        id="display_name"
-        placeholder="Display Name"
-      />
-      <input type="email" name="email" id="email_signup" placeholder="Email" />
-      <input
-        type="password"
-        name="password"
-        id="password_signup"
-        placeholder="Password"
-      />
-      <button id="submitBtn">Submit</button>
-    </div>
+  <body> -->
+<%- include('./partials/header') %>
 
+<!-- user login -->
+<div id="loginDiv">
+  <input type="email" id="email_login" />
+  <input type="password" id="password_login" />
+  <button id="loginBtn">LOG IN</button>
+  <button id="signupBtn">SIGN UP</button>
+</div>
+<!-- user sign up  -->
+<div id="signupDiv" style="display: none">
+  <input
+    type="text"
+    name="display_name"
+    id="display_name"
+    placeholder="Display Name"
+  />
+  <input type="email" name="email" id="email_signup" placeholder="Email" />
+  <input
+    type="password"
+    name="password"
+    id="password_signup"
+    placeholder="Password"
+  />
+  <button id="submitBtn">Submit</button>
+</div>
+
+<%- include('./partials/footer') %>
+
+<!-- 
     <script src="https://cdn.jsdelivr.net/npm/js-loading-overlay@1.1.0/dist/js-loading-overlay.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="script.js"></script>
   </body>
-</html>
+</html> -->
