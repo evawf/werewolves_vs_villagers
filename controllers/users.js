@@ -1,6 +1,7 @@
 const Base = require("./base");
 const jsSHA = require("jssha");
 const getHash = require("../middleware");
+const SALT = process.env.MY_SALT;
 
 class Users extends Base {
   constructor(model) {
@@ -51,6 +52,7 @@ class Users extends Base {
         },
       });
       // User auth
+      // console.log(user.password);
       if (!user) {
         res.status(403).render("error", {
           error: "User is not found, please sign up first!",
@@ -61,6 +63,7 @@ class Users extends Base {
       const shaObj = new jsSHA("SHA-512", "TEXT", { encoding: "UTF8" });
       shaObj.update(req.body.password);
       const hashedPassword = shaObj.getHash("HEX");
+      // console.log(hashedPassword);
       if (user.password !== hashedPassword) {
         res
           .status(401)

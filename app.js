@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 const methodOverride = require("method-override");
 const jsSHA = require("jssha");
 const dotenv = require("dotenv");
+const getHash = require("./middleware");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -32,32 +33,34 @@ const UsersRouter = require("./routers/usersRouter");
 const usersRouter = new UsersRouter(usersController).router();
 
 const SALT = process.env.MY_SALT;
+
 // user auth middleware
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   req.isUserLoggedIn = false;
   res.locals.loggedIn = false;
   if (req.cookies.loggedIn && req.cookies.userId) {
     const hash = getHash(req.cookies.userId);
     if (req.cookies.loggedIn === hash) {
-      const userQuery = `SELECT * FROM users WHERE id=$1`;
-      pool
-        .query(userQuery, [req.cookies.userId])
-        .then((userQueryResult) => {
-          if (userQueryResult.rows.length === 0) {
-            res.redirect("/login");
-            return;
-          }
-          let user = userQueryResult.rows[0];
-          req.user = userQueryResult.rows[0];
-          res.locals.currentUser = user;
-          req.isUserLoggedIn = true;
-          res.locals.loggedIn = true;
-          next();
-        })
-        .catch((error) => {
-          console.log("error", error);
+      try {
+        const result = await db.User.findOne({
+          where: {
+            id: req.cookies.userId,
+          },
         });
-      return;
+        if (!result) {
+          res.redirect("/");
+          return;
+        }
+        let user = userQueryResult.rows[0];
+        req.user = userQueryResult.rows[0];
+        res.locals.currentUser = user;
+        req.isUserLoggedIn = true;
+        res.locals.loggedIn = true;
+        next();
+      } catch (error) {
+        console.log("error", error);
+        return;
+      }
     }
   }
   next();
