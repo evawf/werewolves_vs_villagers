@@ -23,12 +23,12 @@ class gamesRouter {
         "/currentUser",
         isLoggedIn,
         this.controller.getCurrentUser.bind(this.controller)
-      )
-      .get(
-        "/games/:id",
-        isLoggedIn,
-        this.controller.showGameRoom.bind(this.controller)
       );
+    // .get(
+    //   "/games/:id",
+    //   isLoggedIn,
+    //   this.controller.showGameRoom.bind(this.controller)
+    // )
     return router;
   }
 }

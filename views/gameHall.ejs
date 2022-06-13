@@ -2,14 +2,14 @@
 <div>
   <h1><%= currentUser.displayName %>, welcome to Game Hall!</h1>
   <input type="text" name="name" id="gameName" placeholder="Game Name" />
-  <button id="newGameBtn">Create New Game</button>
+  <button id="newGameBtn">Create Game</button>
   <br />
   <a href="/logout">LOG OUT</a>
 </div>
 <div id="gamesDiv">
   <p>Game List</p>
   <% games.forEach(game => { %>
-  <div id="<%= game.id %>" class="game">
+  <div id="<%= game.id %>" class="gameDiv">
     <a class="gameName" href="/games/<%= game.id %>"><%= game.name %></a>
   </div>
   <% }) %>
@@ -17,6 +17,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-loading-overlay@1.1.0/dist/js-loading-overlay.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="game.js"></script>
+    <script src="gameHall.js"></script>
   </body>
 </html>

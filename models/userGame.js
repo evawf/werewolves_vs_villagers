@@ -46,7 +46,7 @@ const initUserGameModel = (sequelize, DataTypes) => {
       },
     },
     {
-      underscore: true,
+      underscored: true,
     }
   );
 };
