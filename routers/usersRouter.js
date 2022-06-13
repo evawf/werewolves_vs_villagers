@@ -12,11 +12,6 @@ class UsersRouter {
       .get("/", this.controller.showHome.bind(this.controller))
       .post("/signup", this.controller.addUser.bind(this.controller))
       .post("/login", this.controller.loginUser.bind(this.controller))
-      .get(
-        "/gameHall",
-        isLoggedIn,
-        this.controller.showGameHall.bind(this.controller)
-      )
       .get("/logout", this.controller.logoutUser.bind(this.controller));
     return router;
   }

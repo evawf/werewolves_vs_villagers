@@ -1,7 +1,25 @@
 <%- include('./partials/header') %>
 <div>
   <h1>Welcome to Game Hall!</h1>
-  <button id="newTable">Create New Game Table</button>
+  <input type="text" name="name" id="tableName" placeholder="Table Name" />
+  <button id="newTableBtn">Create New Game Table</button>
   <br />
   <a href="/logout">LOG OUT</a>
 </div>
+<div id="tablesDiv">
+  <p>Table List</p>
+  <% tables.forEach(table => { %>
+  <div id="table<%= table.id %>">
+    <div class="tableName"><%= table.name %></div>
+    <div class="seat">Seat 1</div>
+    <div class="seat">Seat 2</div>
+    <div class="seat">Seat 3</div>
+  </div>
+  <% }) %>
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-loading-overlay@1.1.0/dist/js-loading-overlay.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="game.js"></script>
+  </body>
+</html>

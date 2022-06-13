@@ -16,6 +16,10 @@ const initGameTableModel = (sequelize, DataTypes) => {
         allowNull: false,
         type: DataTypes.BOOLEAN,
       },
+      gameState: {
+        allowNull: false,
+        type: DataTypes.TEXT,
+      },
       tableId: {
         allowNull: false,
         type: DataTypes.INTEGER,

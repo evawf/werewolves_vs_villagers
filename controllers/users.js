@@ -16,10 +16,6 @@ class Users extends Base {
     res.render("home");
   }
 
-  showGameHall(req, res) {
-    res.render("gameHall");
-  }
-
   async addUser(req, res) {
     const shaObj = new jsSHA("SHA-512", "TEXT", { encoding: "UTF8" });
     shaObj.update(req.body.password);

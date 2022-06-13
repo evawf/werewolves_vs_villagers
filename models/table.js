@@ -1,4 +1,4 @@
-const initTableModel = (sequelize, Datatypes) => {
+const initTableModel = (sequelize, DataTypes) => {
   return sequelize.define(
     "table",
     {
@@ -6,23 +6,19 @@ const initTableModel = (sequelize, Datatypes) => {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Datatypes.INTEGER,
+        type: DataTypes.INTEGER,
       },
       name: {
         allowNull: false,
-        type: Datatypes.TEXT,
-      },
-      gameState: {
-        allowNull: false,
-        type: Datatypes.TEXT,
+        type: DataTypes.TEXT,
       },
       createdAt: {
         allowNull: false,
-        type: Datatypes.DATE,
+        type: DataTypes.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Datatypes.DATE,
+        type: DataTypes.DATE,
       },
     },
     {
