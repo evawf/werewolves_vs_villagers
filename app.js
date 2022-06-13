@@ -23,19 +23,19 @@ const db = require("./models/index");
 
 // Import controllers
 const Users = require("./controllers/users");
-const Tables = require("./controllers/tables");
+const Games = require("./controllers/games");
 
 // Initializing controllers
 const usersController = new Users(db.User);
-const tablesController = new Tables(db.Table);
+const gamesController = new Games(db.Game);
 
 // Import routers
 const UsersRouter = require("./routers/usersRouter");
-const TablesRouter = require("./routers/tablesRouter");
+const GamesRouter = require("./routers/gamesRouter");
 
 // Initializing routers
 const usersRouter = new UsersRouter(usersController).router();
-const tablesRouter = new TablesRouter(tablesController).router();
+const gamesRouter = new GamesRouter(gamesController).router();
 
 const SALT = process.env.MY_SALT;
 
@@ -74,7 +74,7 @@ app.use(async (req, res, next) => {
 });
 
 app.use("/", usersRouter);
-app.use("/", tablesRouter);
+app.use("/", gamesRouter);
 
 const PORT = process.env.PORT || 8088;
 app.listen(PORT, () => {

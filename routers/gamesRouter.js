@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { isLoggedIn } = require("../middleware");
 
-class TablesRouter {
+class gamesRouter {
   constructor(controller) {
     this.controller = controller;
   }
@@ -15,12 +15,22 @@ class TablesRouter {
         this.controller.showGameHall.bind(this.controller)
       )
       .post(
-        "/newTable",
+        "/newGame",
         isLoggedIn,
-        this.controller.addNewTable.bind(this.controller)
+        this.controller.addNewGame.bind(this.controller)
+      )
+      .get(
+        "/currentUser",
+        isLoggedIn,
+        this.controller.getCurrentUser.bind(this.controller)
+      )
+      .get(
+        "/games/:id",
+        isLoggedIn,
+        this.controller.showGameRoom.bind(this.controller)
       );
     return router;
   }
 }
 
-module.exports = TablesRouter;
+module.exports = gamesRouter;

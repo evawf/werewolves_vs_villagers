@@ -1,6 +1,6 @@
-const initTableModel = (sequelize, DataTypes) => {
+const initGameModel = (sequelize, DataTypes) => {
   return sequelize.define(
-    "table",
+    "game",
     {
       id: {
         allowNull: false,
@@ -27,4 +27,4 @@ const initTableModel = (sequelize, DataTypes) => {
   );
 };
 
-module.exports = initTableModel;
+module.exports = initGameModel;

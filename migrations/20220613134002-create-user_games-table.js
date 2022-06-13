@@ -1,8 +1,7 @@
 "use strict";
-
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("game_tables", {
+    await queryInterface.createTable("user_games", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -17,11 +16,15 @@ module.exports = {
         allowNull: false,
         type: Sequelize.BOOLEAN,
       },
-      table_id: {
+      game_state: {
+        allowNull: false,
+        type: Sequelize.TEXT,
+      },
+      game_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
         references: {
-          model: "tables",
+          model: "games",
           key: "id",
         },
       },
@@ -45,6 +48,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("game_tables");
+    await queryInterface.dropTable("user_games");
   },
 };
