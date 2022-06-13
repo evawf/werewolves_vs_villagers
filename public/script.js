@@ -4,7 +4,12 @@ const gameHallBtn = document.getElementById("gameHallBtn");
 const signupBtn = document.getElementById("signupBtn");
 const submitBtn = document.getElementById("submitBtn");
 const loginBtn = document.getElementById("loginBtn");
+const newTable = document.getElementById("newTable");
 
+// Create Game Table
+newTable.addEventListener("click", () => {});
+
+// Check if user has logged in
 function getCookie(cName) {
   const name = cName + "=";
   const cDecoded = decodeURIComponent(document.cookie); //to be careful

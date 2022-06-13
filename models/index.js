@@ -10,6 +10,8 @@ const db = {};
 
 // Import model functions
 const initUserModel = require("./user");
+const initTableModel = require("./table");
+const initGameTableModel = require("./gameTable");
 
 let sequelize;
 if (config.use_env_variable) {
@@ -45,8 +47,17 @@ Object.keys(db).forEach((modelName) => {
 
 // Add model definitions to db
 db.User = initUserModel(sequelize, Sequelize.DataTypes);
+db.Table = initTableModel(sequelize, Sequelize.DataTypes);
+db.GameTable = initGameTableModel(sequelize, Sequelize.DataTypes);
 
 // Define models' assosiation
+db.User.belongsToMany(db.Table, { through: db.GameTable });
+db.Table.belongsToMany(db.User, { through: db.GameTable });
+
+db.User.hasMany(db.GameTable);
+db.GameTable.belongsTo(db.User);
+db.Table.hasMany(db.GameTable);
+db.GameTable.belongsTo(db.Table);
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
