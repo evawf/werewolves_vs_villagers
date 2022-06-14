@@ -16,9 +16,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.BOOLEAN,
       },
-      game_state: {
+      vote: {
         allowNull: false,
-        type: Sequelize.TEXT,
+        type: Sequelize.INTEGER,
       },
       game_id: {
         allowNull: false,

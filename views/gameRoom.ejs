@@ -9,17 +9,16 @@
   </head>
   <body>
     <h1>
-      <%= currentUser.displayName %>, welcome to Game Room: <%=
-      players[0].game.name %>
+      <%= currentUser.displayName %>, welcome to Game Room: <%= game.name %>
     </h1>
 
     <div>
       <p>Hey! This is the game room</p>
     </div>
     <div id="playersContainer">
-      <% players.forEach(player => { %>
+      <% game.users.forEach(player => { %>
       <div class="player">
-        <%= player.user.displayName %> - <%= player.role %>
+        <%= player.displayName %> - <%= player.userGame.role %>
       </div>
       <% }) %>
     </div>

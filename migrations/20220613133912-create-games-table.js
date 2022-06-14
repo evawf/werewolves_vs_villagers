@@ -13,6 +13,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.TEXT,
       },
+      game_state: {
+        allowNull: false,
+        type: Sequelize.TEXT,
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,

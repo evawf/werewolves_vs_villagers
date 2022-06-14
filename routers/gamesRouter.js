@@ -23,11 +23,21 @@ class gamesRouter {
         "/currentUser",
         isLoggedIn,
         this.controller.getCurrentUser.bind(this.controller)
+      )
+      .get(
+        "/games/:id",
+        isLoggedIn,
+        this.controller.showGameRoom.bind(this.controller)
+      )
+      .post(
+        "/games/joinGame",
+        isLoggedIn,
+        this.controller.joinGame.bind(this.controller)
       );
     // .get(
-    //   "/games/:id",
+    //   "/:id/getPlayers",
     //   isLoggedIn,
-    //   this.controller.showGameRoom.bind(this.controller)
+    //   this.controller.getPlayers.bind(this.controller)
     // )
     return router;
   }

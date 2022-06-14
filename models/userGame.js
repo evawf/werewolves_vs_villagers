@@ -16,9 +16,9 @@ const initUserGameModel = (sequelize, DataTypes) => {
         allowNull: false,
         type: DataTypes.BOOLEAN,
       },
-      gameState: {
-        allowNull: false,
-        type: DataTypes.TEXT,
+      vote: {
+        allowNull: true,
+        type: DataTypes.INTEGER,
       },
       gameId: {
         allowNull: false,
@@ -36,14 +36,14 @@ const initUserGameModel = (sequelize, DataTypes) => {
           key: "id",
         },
       },
-      createdAt: {
-        allowNull: false,
-        type: DataTypes.DATE,
-      },
-      updatedAt: {
-        allowNull: false,
-        type: DataTypes.DATE,
-      },
+      // createdAt: {
+      //   allowNull: false,
+      //   type: DataTypes.DATE,
+      // },
+      // updatedAt: {
+      //   allowNull: false,
+      //   type: DataTypes.DATE,
+      // },
     },
     {
       underscored: true,

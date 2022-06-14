@@ -12,6 +12,10 @@ const initGameModel = (sequelize, DataTypes) => {
         allowNull: false,
         type: DataTypes.TEXT,
       },
+      game_state: {
+        allowNull: false,
+        type: DataTypes.TEXT,
+      },
       createdAt: {
         allowNull: false,
         type: DataTypes.DATE,
