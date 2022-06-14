@@ -4,15 +4,31 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/style.css" />
     <title>Document</title>
   </head>
   <body>
-    <h1><%= currentUser.displayName %>, welcome to Game Room: xxx!</h1>
+    <h1>
+      <%= currentUser.displayName %>, welcome to Game Room: <%=
+      players[0].game.name %>
+    </h1>
 
     <div>
       <p>Hey! This is the game room</p>
     </div>
+    <div id="playersContainer">
+      <% players.forEach(player => { %>
+      <div class="player">
+        <%= player.user.displayName %> - <%= player.role %>
+      </div>
+      <% }) %>
+    </div>
+    <a href="/logout">LOG OUT</a>
+    <br />
+    <a href="/gameHall">Switch Game Room</a>
 
+    <script src="https://cdn.jsdelivr.net/npm/js-loading-overlay@1.1.0/dist/js-loading-overlay.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="/gameRoom.js"></script>
   </body>
 </html>

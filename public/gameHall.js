@@ -15,9 +15,10 @@ const rolesArr =
     const newGameDiv = document.createElement("div");
     newGameDiv.id = `game${game.id}`;
     newGameDiv.className = "game";
-    const gameName = document.createElement("div");
+    const gameName = document.createElement("a");
     gameName.className = "gameName";
     gameName.textContent = game.name;
+    gameName.href = `/games/${game.id}`;
     newGameDiv.append(gameName);
     gamesDiv.append(newGameDiv);
   });
@@ -34,7 +35,6 @@ games.forEach((game) => {
   game.addEventListener("click", async (e) => {
     let clickedGame = e.currentTarget;
     const gameId = clickedGame.id;
-
     const result = await axios.post("/games/joinGame", { gameId });
     console.log(result);
   });

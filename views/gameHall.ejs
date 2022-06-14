@@ -8,6 +8,7 @@
 </div>
 <div id="gamesDiv">
   <p>Game List</p>
+  <p>Click the game room to join</p>
   <% games.forEach(game => { %>
   <div id="<%= game.id %>" class="gameDiv">
     <a class="gameName" href="/games/<%= game.id %>"><%= game.name %></a>
