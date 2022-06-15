@@ -33,12 +33,12 @@ class gamesRouter {
         "/games/joinGame",
         isLoggedIn,
         this.controller.joinGame.bind(this.controller)
+      )
+      .get(
+        "/games/:id/getPlayers",
+        isLoggedIn,
+        this.controller.getPlayers.bind(this.controller)
       );
-    // .get(
-    //   "/:id/getPlayers",
-    //   isLoggedIn,
-    //   this.controller.getPlayers.bind(this.controller)
-    // )
     return router;
   }
 }

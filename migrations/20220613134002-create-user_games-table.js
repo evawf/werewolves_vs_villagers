@@ -18,7 +18,7 @@ module.exports = {
       },
       vote: {
         allowNull: false,
-        type: Sequelize.INTEGER,
+        type: Sequelize.TEXT,
       },
       game_id: {
         allowNull: false,

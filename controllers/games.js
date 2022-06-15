@@ -4,7 +4,7 @@ const db = require("../models/index");
 // Generate roles array
 const getRoles = () => {
   const numOfPlayers = 3;
-  const numOfWerevolves = numOfPlayers / 3;
+  const numOfWerevolves = Math.floor(numOfPlayers / 3);
   const roles = ["Werevolves", "Villagers"];
   const rolesArr = [];
   for (let i = 0; i < numOfWerevolves; i += 1) {
@@ -22,8 +22,10 @@ const getRoles = () => {
   }
   return rolesArr;
 };
-const assignRoles = getRoles();
 
+let roles = [];
+
+// Game logic
 class Games extends Base {
   constructor(model) {
     super(model);
@@ -59,14 +61,23 @@ class Games extends Base {
     res.render("gameRoom", { game: game });
   }
 
-  // async getPlayers(req, res){
+  async getPlayers(req, res) {
+    const gameId = req.params.id;
+    const game = await this.model.findByPk(gameId, {
+      include: [
+        {
+          model: db.User,
+          include: [db.UserGame],
+        },
+      ],
+    });
 
-  // }
+    res.json(game.users);
+  }
 
   async joinGame(req, res) {
     const gameId = req.body.gameId;
     const currentUser = res.locals.currentUser;
-
     const game = await this.model.findByPk(gameId);
     const existingPlayer = await game.getUsers({
       where: {
@@ -75,20 +86,23 @@ class Games extends Base {
     });
 
     if (existingPlayer.length === 0) {
+      if (roles.length === 0) roles = getRoles();
+      console.log(roles);
       const user = await db.User.findByPk(currentUser.id);
       await game.addUser(user, {
         through: {
-          role: assignRoles.pop(),
+          role: roles.pop(),
           alive: true,
           gameState: "Ready",
-          vote: "None",
+          vote: "0",
         },
       });
+      if (roles.length === 0) {
+        game.game_state = "Night";
+        await game.save();
+      }
     }
-    if (assignRoles.length === 0) {
-      console.log("game start: night");
-    }
-    res.send({ gameId });
+    res.json({ gameId });
   }
 }
 

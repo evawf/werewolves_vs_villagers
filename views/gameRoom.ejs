@@ -5,19 +5,26 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/style.css" />
-    <title>Document</title>
+    <title>Game Room</title>
   </head>
   <body>
+    <!-- This input is only for send game id to js file  -->
+    <input
+      type="hidden"
+      id="gameId"
+      value="<%= game.id %>"
+      style="display: hidden"
+    />
+
     <h1>
       <%= currentUser.displayName %>, welcome to Game Room: <%= game.name %>
     </h1>
 
-    <div>
-      <p>Hey! This is the game room</p>
-    </div>
+    <p>Hey! This is the game room</p>
+    <div id="outputMsg"></div>
     <div id="playersContainer">
       <% game.users.forEach(player => { %>
-      <div class="player">
+      <div class="player" id="<%= player.id %>">
         <%= player.displayName %> - <%= player.userGame.role %>
       </div>
       <% }) %>

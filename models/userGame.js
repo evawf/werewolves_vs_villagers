@@ -17,8 +17,8 @@ const initUserGameModel = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
       },
       vote: {
-        allowNull: true,
-        type: DataTypes.INTEGER,
+        allowNull: false,
+        type: DataTypes.TEXT,
       },
       gameId: {
         allowNull: false,
