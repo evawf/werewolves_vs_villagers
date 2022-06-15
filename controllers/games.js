@@ -93,7 +93,7 @@ class Games extends Base {
           role: roles.pop(),
           alive: true,
           gameState: "Ready",
-          vote: "0",
+          // vote: "0",
         },
       });
       if (roles.length === 0) {
@@ -120,8 +120,37 @@ class Games extends Base {
     const gameId = req.params.id;
     const currentUser = res.locals.currentUser;
     const vote = req.body.vote;
-    console.log(vote);
-    res.send("got vote");
+    const user = await db.UserGame.findOne({
+      where: {
+        userId: currentUser.id,
+      },
+    });
+    user.vote = vote;
+    await user.save();
+    res.send("Vote posted!");
+  }
+
+  async getVoteResult(req, res) {
+    const gameId = req.params.id;
+    // const currentUser = res.locals.currentUser;
+    const players = await db.UserGame.findAll({
+      where: {
+        gameId: gameId,
+      },
+    });
+
+    let voteArr = [];
+    players.forEach((player) => {
+      if (player.vote !== null) {
+        voteArr.push(player.vote);
+      }
+    });
+    console.log(voteArr);
+    if (voteArr.length !== 1) {
+      killedPlayerId = Math.floor(Math.random() * voteArr.length) + 1;
+    }
+
+    res.send("villager got killed by werevolf");
   }
 }
 

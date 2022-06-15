@@ -19,8 +19,8 @@ const displayNewPlayers = async () => {
       const pRole = document.createElement("p");
       newPlayerDiv.className = "player";
       newPlayerDiv.id = player.id;
-      pName.textContent = "player.displayName";
-      pRole.textContent = "player.userGame.role";
+      pName.textContent = player.displayName;
+      pRole.textContent = player.userGame.role;
       newPlayerDiv.append(pName);
       newPlayerDiv.append(pRole);
       playersContainer.append(newPlayerDiv);
@@ -45,6 +45,10 @@ const voteVillager = async () => {
 
   if (currentPlayerRole.data === "Werevolf") {
     // Display all werevolves's role
+    const werevolves = document.querySelectorAll(".Werevolf");
+    werevolves.forEach((werevolf) => {
+      werevolf.style.display = "block";
+    });
 
     // Enable villagers container for click to vote out
     const villagers = document.querySelectorAll(".Villager");
@@ -52,13 +56,19 @@ const voteVillager = async () => {
     villagers.forEach((villager) => {
       villager.addEventListener("click", async (e) => {
         const votedVillager = e.currentTarget;
+        votedVillager.style.background = "pink";
         const vote = votedVillager.id;
         const postVote = await axios.post(`/games/${gameId}/vote`, { vote });
         console.log(postVote);
       });
     });
+
+    // Check vote and return result
+    const voteResult = await axios.get(`/games/${gameId}/voteResult`);
+    console.log(voteResult);
   }
 };
 
+// setInterval(displayNewPlayers, 1000);
 displayNewPlayers();
 voteVillager();
