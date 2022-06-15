@@ -11,7 +11,7 @@
   <p>Click the game room to join</p>
   <% games.forEach(game => { %>
   <div id="<%= game.id %>" class="gameDiv">
-    <span class="gameName" ></span><%= game.name %></span>
+    <span class="gameName" ><%= game.name %> - <%= game.userGames.length %> / 3</span>
   </div>
   <% }) %>
 </div>

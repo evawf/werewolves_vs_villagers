@@ -15,10 +15,14 @@ const displayNewPlayers = async () => {
   players.forEach((player) => {
     if (!currentPlayersArr.includes(player.id)) {
       const newPlayerDiv = document.createElement("div");
+      const pName = document.createElement("p");
+      const pRole = document.createElement("p");
       newPlayerDiv.className = "player";
       newPlayerDiv.id = player.id;
-      newPlayerDiv.textContent =
-        "player.displayName" + " - player.userGame.role";
+      pName.textContent = "player.displayName";
+      pRole.textContent = "player.userGame.role";
+      newPlayerDiv.append(pName);
+      newPlayerDiv.append(pRole);
       playersContainer.append(newPlayerDiv);
     }
   });
@@ -30,6 +34,9 @@ const voteVillageOut = () => {
     console.log("Game Start: NIGHT MODE");
     outputMsgContainer.textContent =
       "Game start: NIGHT - Werevolves wakeup now! Choose a villager to kill!";
+  } else {
+    outputMsgContainer.textContent =
+      "Please wait for more players to join the room.";
   }
 };
 

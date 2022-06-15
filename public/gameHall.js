@@ -21,14 +21,12 @@ newGameBtn.addEventListener("click", async () => {
   gamesDiv.append(newGameDiv);
 });
 
-let newPlayer;
 const games = document.querySelectorAll(".gameDiv");
 games.forEach((game) => {
   game.addEventListener("click", async (e) => {
     let clickedGame = e.currentTarget;
     const gameId = clickedGame.id;
-    const result = await axios.post("/games/joinGame", { gameId });
-    newPlayer = result.data;
+    await axios.post("/games/joinGame", { gameId });
     window.location.href = `/games/${gameId}`;
   });
 });

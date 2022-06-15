@@ -32,9 +32,10 @@ class Games extends Base {
   }
 
   async showGameHall(req, res) {
-    const games = await this.model.findAll();
+    // const games = await this.model.findAll();
+    const players = await this.model.findAll({ include: [db.UserGame] });
     const currentUser = res.locals.currentUser;
-    res.render("gameHall", { games: games, currentUser: currentUser });
+    res.render("gameHall", { games: players, currentUser: currentUser });
   }
 
   async addNewGame(req, res) {
@@ -98,6 +99,7 @@ class Games extends Base {
         },
       });
       if (roles.length === 0) {
+        console.log("game start: NIGHT MODE");
         game.game_state = "Night";
         await game.save();
       }
