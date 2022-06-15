@@ -38,6 +38,16 @@ class gamesRouter {
         "/games/:id/getPlayers",
         isLoggedIn,
         this.controller.getPlayers.bind(this.controller)
+      )
+      .get(
+        "/games/:id/getCurrentPlayerRole",
+        isLoggedIn,
+        this.controller.getCurrentPlayerRole.bind(this.controller)
+      )
+      .post(
+        "/games/:id/vote",
+        isLoggedIn,
+        this.controller.postVote.bind(this.controller)
       );
     return router;
   }

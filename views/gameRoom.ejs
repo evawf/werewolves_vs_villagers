@@ -24,7 +24,7 @@
     <div id="outputMsg"></div>
     <div id="playersContainer">
       <% game.users.forEach(player => { %>
-      <div class="player" id="<%= player.id %>">
+      <div class="player <%= player.userGame.role %>" id="<%= player.id %>">
         <p><%= player.displayName %></p>
         <p><%= player.userGame.role %></p>
       </div>

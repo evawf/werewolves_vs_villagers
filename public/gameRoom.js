@@ -29,16 +29,36 @@ const displayNewPlayers = async () => {
 };
 
 // All players onboard: Game start - NIGHT MODE
-const voteVillageOut = () => {
+const voteVillager = async () => {
   if (playersDiv.length === 3) {
     console.log("Game Start: NIGHT MODE");
     outputMsgContainer.textContent =
-      "Game start: NIGHT - Werevolves wakeup now! Choose a villager to kill!";
+      "Game start: NIGHT - Werevolves open your eyes and choose a villager to kill!";
+    document.body.style.background = "gray";
   } else {
     outputMsgContainer.textContent =
       "Please wait for more players to join the room.";
   }
+  const currentPlayerRole = await axios.get(
+    `/games/${gameId}/getCurrentPlayerRole`
+  );
+
+  if (currentPlayerRole.data === "Werevolf") {
+    // Display all werevolves's role
+
+    // Enable villagers container for click to vote out
+    const villagers = document.querySelectorAll(".Villager");
+    console.log(villagers);
+    villagers.forEach((villager) => {
+      villager.addEventListener("click", async (e) => {
+        const votedVillager = e.currentTarget;
+        const vote = votedVillager.id;
+        const postVote = await axios.post(`/games/${gameId}/vote`, { vote });
+        console.log(postVote);
+      });
+    });
+  }
 };
 
 displayNewPlayers();
-voteVillageOut();
+voteVillager();

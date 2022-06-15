@@ -5,7 +5,7 @@ const db = require("../models/index");
 const getRoles = () => {
   const numOfPlayers = 3;
   const numOfWerevolves = Math.floor(numOfPlayers / 3);
-  const roles = ["Werevolves", "Villagers"];
+  const roles = ["Werevolf", "Villager"];
   const rolesArr = [];
   for (let i = 0; i < numOfWerevolves; i += 1) {
     rolesArr.push(roles[0]);
@@ -40,7 +40,6 @@ class Games extends Base {
 
   async addNewGame(req, res) {
     const newGame = req.body;
-    console.log(newGame);
     const result = await this.model.create(newGame);
     res.json(result);
   }
@@ -88,7 +87,6 @@ class Games extends Base {
 
     if (existingPlayer.length === 0) {
       if (roles.length === 0) roles = getRoles();
-      console.log(roles);
       const user = await db.User.findByPk(currentUser.id);
       await game.addUser(user, {
         through: {
@@ -99,12 +97,31 @@ class Games extends Base {
         },
       });
       if (roles.length === 0) {
-        console.log("game start: NIGHT MODE");
         game.game_state = "Night";
         await game.save();
       }
     }
     res.json({ gameId });
+  }
+
+  async getCurrentPlayerRole(req, res) {
+    const gameId = req.params.id;
+    const currentUser = res.locals.currentUser;
+    const player = await db.UserGame.findOne({
+      where: {
+        gameId: gameId,
+        userId: currentUser.id,
+      },
+    });
+    res.send(`${player.role}`);
+  }
+
+  async postVote(req, res) {
+    const gameId = req.params.id;
+    const currentUser = res.locals.currentUser;
+    const vote = req.body.vote;
+    console.log(vote);
+    res.send("got vote");
   }
 }
 
