@@ -8,6 +8,9 @@
     <title>Game Room</title>
   </head>
   <body>
+    <a href="/logout">LOG OUT</a>
+    <br />
+    <a href="/gameHall">Switch Game Room</a>
     <!-- This input is only for send game id to js file  -->
     <input
       type="hidden"
@@ -22,19 +25,7 @@
 
     <p>Hey! This is the game room</p>
     <div id="outputMsg"></div>
-    <div id="playersContainer">
-      <% game.users.forEach(player => { %>
-      <div class="player <%= player.userGame.role %>" id="<%= player.id %>">
-        <p><%= player.displayName %></p>
-        <p class="<%= player.userGame.role %>" style="display: none">
-          <%= player.userGame.role %>
-        </p>
-      </div>
-      <% }) %>
-    </div>
-    <a href="/logout">LOG OUT</a>
-    <br />
-    <a href="/gameHall">Switch Game Room</a>
+    <div id="playersContainer"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/js-loading-overlay@1.1.0/dist/js-loading-overlay.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>

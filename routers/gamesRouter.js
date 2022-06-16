@@ -29,31 +29,31 @@ class gamesRouter {
         isLoggedIn,
         this.controller.showGameRoom.bind(this.controller)
       )
+      .get(
+        "/games/:id/info",
+        isLoggedIn,
+        this.controller.getGameInfo.bind(this.controller)
+      )
       .post(
         "/games/joinGame",
         isLoggedIn,
         this.controller.joinGame.bind(this.controller)
       )
       .get(
-        "/games/:id/getPlayers",
+        "/games/:id/getCurrentPlayer",
         isLoggedIn,
-        this.controller.getPlayers.bind(this.controller)
-      )
-      .get(
-        "/games/:id/getCurrentPlayerRole",
-        isLoggedIn,
-        this.controller.getCurrentPlayerRole.bind(this.controller)
+        this.controller.getCurrentPlayer.bind(this.controller)
       )
       .post(
-        "/games/:id/vote",
+        "/games/:id/voteVillager",
         isLoggedIn,
-        this.controller.postVote.bind(this.controller)
-      )
-      .get(
-        "/games/:id/voteResult",
-        isLoggedIn,
-        this.controller.getVoteResult.bind(this.controller)
+        this.controller.postVoteVillager.bind(this.controller)
       );
+    // .get(
+    //   "/games/:id/voteResult",
+    //   isLoggedIn,
+    //   this.controller.getVoteResult.bind(this.controller)
+    // )
     return router;
   }
 }

@@ -51,18 +51,19 @@ class Games extends Base {
 
   async showGameRoom(req, res) {
     const game = await this.model.findByPk(req.params.id, {
-      include: [
-        {
-          model: db.User,
-          include: [db.UserGame],
-        },
-      ],
+      // include: [
+      //   {
+      //     model: db.User,
+      //     include: [db.UserGame],
+      //   },
+      // ],
     });
     res.render("gameRoom", { game: game });
   }
 
-  async getPlayers(req, res) {
+  async getGameInfo(req, res) {
     const gameId = req.params.id;
+    const currentUser = res.locals.currentUser;
     const game = await this.model.findByPk(gameId, {
       include: [
         {
@@ -72,8 +73,38 @@ class Games extends Base {
       ],
     });
 
-    res.json(game.users);
+    const gameInfo = {
+      gameId: game.id,
+      players: [],
+    };
+    gameInfo.players = game.users.map((p) => {
+      console.log(p);
+      const oneUser = {
+        id: p.id,
+        displayName: p.displayName,
+        you: p.id == currentUser.id,
+        role: p.id == currentUser.id ? p.userGame.role : null,
+        alive: p.userGame.alive,
+      };
+      return oneUser;
+    });
+
+    res.json(gameInfo);
   }
+
+  // async getPlayers(req, res) {
+  //   const gameId = req.params.id;
+  //   const game = await this.model.findByPk(gameId, {
+  //     include: [
+  //       {
+  //         model: db.User,
+  //         include: [db.UserGame],
+  //       },
+  //     ],
+  //   });
+
+  //   res.json(game.users);
+  // }
 
   async joinGame(req, res) {
     const gameId = req.body.gameId;
@@ -104,7 +135,7 @@ class Games extends Base {
     res.json({ gameId });
   }
 
-  async getCurrentPlayerRole(req, res) {
+  async getCurrentPlayer(req, res) {
     const gameId = req.params.id;
     const currentUser = res.locals.currentUser;
     const player = await db.UserGame.findOne({
@@ -113,16 +144,18 @@ class Games extends Base {
         userId: currentUser.id,
       },
     });
-    res.send(`${player.role}`);
+    console.log(player);
+    res.json({ player });
   }
 
-  async postVote(req, res) {
+  async postVoteVillager(req, res) {
     const gameId = req.params.id;
     const currentUser = res.locals.currentUser;
     const vote = req.body.vote;
     const user = await db.UserGame.findOne({
       where: {
         userId: currentUser.id,
+        gameId: gameId,
       },
     });
     user.vote = vote;
@@ -130,28 +163,28 @@ class Games extends Base {
     res.send("Vote posted!");
   }
 
-  async getVoteResult(req, res) {
-    const gameId = req.params.id;
-    // const currentUser = res.locals.currentUser;
-    const players = await db.UserGame.findAll({
-      where: {
-        gameId: gameId,
-      },
-    });
+  // async getVoteResult(req, res) {
+  //   const gameId = req.params.id;
+  //   // const currentUser = res.locals.currentUser;
+  //   const players = await db.UserGame.findAll({
+  //     where: {
+  //       gameId: gameId,
+  //     },
+  //   });
 
-    let voteArr = [];
-    players.forEach((player) => {
-      if (player.vote !== null) {
-        voteArr.push(player.vote);
-      }
-    });
-    console.log(voteArr);
-    if (voteArr.length !== 1) {
-      killedPlayerId = Math.floor(Math.random() * voteArr.length) + 1;
-    }
+  //   let voteArr = [];
+  //   players.forEach((player) => {
+  //     if (player.vote !== null) {
+  //       voteArr.push(player.vote);
+  //     }
+  //   });
+  //   console.log(voteArr);
+  //   if (voteArr.length !== 1) {
+  //     killedPlayerId = Math.floor(Math.random() * voteArr.length) + 1;
+  //   }
 
-    res.send("villager got killed by werevolf");
-  }
+  //   res.send("villager got killed by werevolf");
+  // }
 }
 
 module.exports = Games;
