@@ -25,6 +25,11 @@ class gamesRouter {
         this.controller.getCurrentUser.bind(this.controller)
       )
       .get(
+        "/getGamesInfo",
+        isLoggedIn,
+        this.controller.getGamesInfo.bind(this.controller)
+      )
+      .get(
         "/games/:id",
         isLoggedIn,
         this.controller.showGameRoom.bind(this.controller)
@@ -48,12 +53,12 @@ class gamesRouter {
         "/games/:id/voteVillager",
         isLoggedIn,
         this.controller.postVoteVillager.bind(this.controller)
+      )
+      .get(
+        "/games/:id/voteResult",
+        isLoggedIn,
+        this.controller.getVoteResult.bind(this.controller)
       );
-    // .get(
-    //   "/games/:id/voteResult",
-    //   isLoggedIn,
-    //   this.controller.getVoteResult.bind(this.controller)
-    // )
     return router;
   }
 }

@@ -38,6 +38,11 @@ class Games extends Base {
     res.render("gameHall", { games: players, currentUser: currentUser });
   }
 
+  async getGamesInfo(req, res) {
+    const games = await this.model.findAll();
+    res.json({ games });
+  }
+
   async addNewGame(req, res) {
     const newGame = req.body;
     const result = await this.model.create(newGame);
@@ -50,14 +55,7 @@ class Games extends Base {
   }
 
   async showGameRoom(req, res) {
-    const game = await this.model.findByPk(req.params.id, {
-      // include: [
-      //   {
-      //     model: db.User,
-      //     include: [db.UserGame],
-      //   },
-      // ],
-    });
+    const game = await this.model.findByPk(req.params.id);
     res.render("gameRoom", { game: game });
   }
 
@@ -92,20 +90,6 @@ class Games extends Base {
     res.json(gameInfo);
   }
 
-  // async getPlayers(req, res) {
-  //   const gameId = req.params.id;
-  //   const game = await this.model.findByPk(gameId, {
-  //     include: [
-  //       {
-  //         model: db.User,
-  //         include: [db.UserGame],
-  //       },
-  //     ],
-  //   });
-
-  //   res.json(game.users);
-  // }
-
   async joinGame(req, res) {
     const gameId = req.body.gameId;
     const currentUser = res.locals.currentUser;
@@ -124,7 +108,6 @@ class Games extends Base {
           role: roles.pop(),
           alive: true,
           gameState: "Ready",
-          // vote: "0",
         },
       });
       if (roles.length === 0) {
@@ -144,7 +127,6 @@ class Games extends Base {
         userId: currentUser.id,
       },
     });
-    console.log(player);
     res.json({ player });
   }
 
@@ -163,28 +145,37 @@ class Games extends Base {
     res.send("Vote posted!");
   }
 
-  // async getVoteResult(req, res) {
-  //   const gameId = req.params.id;
-  //   // const currentUser = res.locals.currentUser;
-  //   const players = await db.UserGame.findAll({
-  //     where: {
-  //       gameId: gameId,
-  //     },
-  //   });
+  async getVoteResult(req, res) {
+    const gameId = req.params.id;
+    // const currentUser = res.locals.currentUser;
+    const players = await db.UserGame.findAll({
+      where: {
+        gameId: gameId,
+      },
+    });
 
-  //   let voteArr = [];
-  //   players.forEach((player) => {
-  //     if (player.vote !== null) {
-  //       voteArr.push(player.vote);
-  //     }
-  //   });
-  //   console.log(voteArr);
-  //   if (voteArr.length !== 1) {
-  //     killedPlayerId = Math.floor(Math.random() * voteArr.length) + 1;
-  //   }
+    let voteArr = [];
+    players.forEach((player) => {
+      if (player.vote !== null) {
+        voteArr.push(player.vote);
+      }
+    });
+    if (voteArr.length === 1) {
+      const user = await db.UserGame.findOne({
+        where: {
+          userId: Number(voteArr[0]),
+          gameId: gameId,
+        },
+        include: [db.User, db.Game],
+      });
+      user.alive = false;
+      user.game.game_state = "Day";
+      await user.save();
+      res.json({ user });
+    }
 
-  //   res.send("villager got killed by werevolf");
-  // }
+    // res.json({ user });
+  }
 }
 
 module.exports = Games;
