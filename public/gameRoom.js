@@ -59,7 +59,6 @@ function voteVillager(players, werevolf) {
     if (Number(player.id) !== werevolf.userId) {
       player.addEventListener("click", async function click(e) {
         const clickedVillager = e.currentTarget;
-
         // Choose one villager only
         if (votedVillager === null) {
           clickedVillager.style.background = "pink";
@@ -108,6 +107,18 @@ async function nightMode() {
   return;
 }
 
+function voteWerewolf(players, currentPlayer) {
+  let vote = null;
+  let votedWerewolf = null;
+  players.forEach((player) => {
+    if (Number(player.id) !== currentPlayer.userId) {
+      player.addEventListener("click", async function click(e) {
+        console.log("you clicked");
+      });
+    }
+  });
+}
+
 async function dayMode() {
   document.body.style.background = "none";
   const result = await axios.get(`/games/${gameId}/activePlayers`);
@@ -119,8 +130,16 @@ async function dayMode() {
   }
   // console.log(result.data.playersArr);
   const activePlayersArr = result.data.playersArr;
-  console.log(currentPlayersArr);
+  console.log(activePlayersArr);
+  // console.log(currentPlayersArr);
+  console.log(currentPlayer);
   // Only active player can vote to kill werewolf
+  const activePlayersDiv = [];
+  activePlayersArr.forEach((player) => {
+    activePlayersDiv.push(document.getElementById(`${player.id}`));
+  });
+  console.log(activePlayersDiv);
+  voteWerewolf(activePlayersDiv, currentPlayer);
 }
 
 waitForPlayersgameId(gameId);
