@@ -49,6 +49,11 @@ class gamesRouter {
         isLoggedIn,
         this.controller.getCurrentPlayer.bind(this.controller)
       )
+      .get(
+        "/games/:id/gameState",
+        isLoggedIn,
+        this.controller.getGameState.bind(this.controller)
+      )
       .post(
         "/games/:id/voteVillager",
         isLoggedIn,
@@ -58,6 +63,11 @@ class gamesRouter {
         "/games/:id/voteResult",
         isLoggedIn,
         this.controller.getVoteResult.bind(this.controller)
+      )
+      .get(
+        "/games/:id/activePlayers",
+        isLoggedIn,
+        this.controller.getActivePlayers.bind(this.controller)
       );
     return router;
   }

@@ -76,7 +76,7 @@ class Games extends Base {
       players: [],
     };
     gameInfo.players = game.users.map((p) => {
-      console.log(p);
+      // console.log(p);
       const oneUser = {
         id: p.id,
         displayName: p.displayName,
@@ -116,6 +116,12 @@ class Games extends Base {
       }
     }
     res.json({ gameId });
+  }
+
+  async getGameState(req, res) {
+    const gameId = req.params.id;
+    const game = await this.model.findByPk(gameId);
+    res.json({ game });
   }
 
   async getCurrentPlayer(req, res) {
@@ -169,12 +175,30 @@ class Games extends Base {
         include: [db.User, db.Game],
       });
       user.alive = false;
-      user.game.game_state = "Day";
       await user.save();
+      const game = await this.model.findByPk(gameId);
+      game.game_state = "Day";
+      await game.save();
       res.json({ user });
     }
+  }
 
-    // res.json({ user });
+  async getActivePlayers(req, res) {
+    const gameId = req.params.id;
+    const players = await db.UserGame.findAll({
+      where: {
+        gameId: gameId,
+        alive: true,
+      },
+      include: [db.User],
+    });
+    console.log(players[0].user);
+    const playersArr = [];
+    players.forEach((player) => {
+      playersArr.push(player.user);
+    });
+    console.log(playersArr);
+    res.json({ playersArr });
   }
 }
 
