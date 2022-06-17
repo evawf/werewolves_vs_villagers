@@ -94,20 +94,42 @@ class Games extends Base {
     const gameId = req.body.gameId;
     const currentUser = res.locals.currentUser;
     const game = await this.model.findByPk(gameId);
-    const existingPlayer = await game.getUsers({
+    const alreadyJoined = await game.getUsers({
       where: {
         id: Number(currentUser.id),
       },
     });
 
-    if (existingPlayer.length === 0) {
-      if (roles.length === 0) roles = getRoles();
+    roles = getRoles();
+    if (alreadyJoined.length === 0) {
+      // Check joined players' role and make a arr
+      const joinedPlayers = await db.UserGame.findAll({
+        where: {
+          gameId: gameId,
+        },
+      });
+      console.log(joinedPlayers);
+      const existingRoles = [];
+      joinedPlayers.forEach((player) => {
+        existingRoles.push(player.role);
+      });
+      console.log(existingRoles);
+
+      // if (roles.length === 0) roles = getRoles();
+      let rolesArr = [...roles];
+      for (let i = 0; i < rolesArr.length; i += 1) {
+        if (existingRoles.pop() === rolesArr[i])
+          rolesArr.splice(rolesArr[i], 1);
+        break;
+      }
+
+      console.log(rolesArr);
       const user = await db.User.findByPk(currentUser.id);
       await game.addUser(user, {
         through: {
-          role: roles.pop(),
+          role: rolesArr.pop(),
           alive: true,
-          gameState: "Ready",
+          gameState: "Waiting",
         },
       });
       if (roles.length === 0) {
@@ -115,7 +137,7 @@ class Games extends Base {
         await game.save();
       }
     }
-    res.json({ gameId });
+    res.send("Joined!");
   }
 
   async getGameState(req, res) {
@@ -151,12 +173,13 @@ class Games extends Base {
     res.send("Vote posted!");
   }
 
-  async getVoteResult(req, res) {
+  async getVoteVillagerResult(req, res) {
     const gameId = req.params.id;
     // const currentUser = res.locals.currentUser;
     const players = await db.UserGame.findAll({
       where: {
         gameId: gameId,
+        // alive: true,
       },
     });
 
@@ -192,13 +215,85 @@ class Games extends Base {
       },
       include: [db.User],
     });
-    console.log(players[0].user);
+    // console.log(players[0].user);
     const playersArr = [];
     players.forEach((player) => {
       playersArr.push(player.user);
     });
-    console.log(playersArr);
+    // console.log(playersArr);
     res.json({ playersArr });
+  }
+
+  async postVoteWerewolf(req, res) {
+    const gameId = req.params.id;
+    const currentUser = res.locals.currentUser;
+    const vote = req.body.vote;
+    const user = await db.UserGame.findOne({
+      where: {
+        userId: currentUser.id,
+        gameId: gameId,
+      },
+    });
+    user.vote = vote;
+    await user.save();
+    res.send("voted!");
+  }
+
+  async getVoteWerewolfResult(req, res) {
+    const gameId = req.params.id;
+    const players = await db.UserGame.findAll({
+      where: {
+        gameId: gameId,
+        alive: true,
+      },
+    });
+    // Collect vote
+    const voteArr = [];
+    players.forEach((player) => {
+      if (player.vote !== "NULL") {
+        voteArr.push(Number(player.vote));
+      }
+    });
+
+    // If all active players voted, then decide who will be killed
+    let user;
+    if (voteArr.length === players.length) {
+      // If only tow active players, then random choose who gets killed
+      let idx = Math.floor(Math.random() * voteArr.length);
+      console.log(voteArr[idx]);
+      user = await db.UserGame.findOne({
+        where: {
+          userId: voteArr[idx],
+          gameId: gameId,
+        },
+        include: [db.User, db.Game],
+      });
+      user.alive = false;
+      await user.save();
+      // If more active players, then higher votes player gets killed
+      // .... to be added here
+    }
+
+    // Check num of active players
+    const activeUsers = await db.UserGame.findAll({
+      where: {
+        gameId: gameId,
+        alive: true,
+      },
+    });
+    console.log(activeUsers.length);
+    if (activeUsers.length === 1) {
+      const game = await db.Game.findByPk(gameId);
+      console.log(game);
+      game.game_state = "Game over";
+      await game.save();
+    } else {
+      const game = await db.Game.findByPk(gameId);
+      game.game_state = "Night";
+      await game.save();
+    }
+
+    res.json({ user });
   }
 }
 

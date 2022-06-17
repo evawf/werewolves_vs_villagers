@@ -45,7 +45,11 @@ async function waitForPlayersgameId(gameId) {
       console.log("day mode");
       dayMode();
     }
-    // gameMode = "Night";
+    if (game_state === "Game over") {
+      console.log("Game over");
+      // If game over, players can restart the game or leave the game
+      // resetGame();
+    }
   }
   outputMsgContainer.textContent =
     "Please wait for more players to join the room.";
@@ -81,39 +85,49 @@ function voteVillager(players, werevolf) {
 }
 
 async function nightMode() {
-  let vote;
   outputMsgContainer.textContent =
     "Game start: NIGHT - Werevolves open your eyes and choose a villager to kill!";
   document.body.style.background = "gray";
   // Werewolf select a villager
-  // const result = await axios.get(`/games/${gameId}/getCurrentPlayer`);
-  // const currentPlayer = result.data.player;
   if (currentPlayer.role === "Werevolf") {
     const allPlayers = document.querySelectorAll(".player");
     voteVillager(allPlayers, currentPlayer);
   }
-  console.log("first");
-  const voteResult = await axios.get(`/games/${gameId}/voteResult`);
-  console.log(voteResult);
-  console.log("second");
+  const voteResult = await axios.get(`/games/${gameId}/voteVillagerResult`);
   const votedVillager = voteResult.data.user;
-  console.log(votedVillager);
   if (votedVillager) {
     const diedVillagerDiv = document.getElementById(`${votedVillager.userId}`);
-    console.log(diedVillagerDiv);
     diedVillagerDiv.style.background = "red";
-    outputMsgContainer.textContent = `Poor villager ${votedVillager.user.displayName} got killed by werevolf! Attention! All villagers!! We must find the bad werewolf and put an end to it.`;
   }
   return;
 }
 
 function voteWerewolf(players, currentPlayer) {
   let vote = null;
-  let votedWerewolf = null;
+  let votedPlayer = null;
+  // console.log(players);
+  // console.log(currentPlayer);
   players.forEach((player) => {
-    if (Number(player.id) !== currentPlayer.userId) {
+    if (Number(player.id) !== currentPlayer.userId && currentPlayer.alive) {
       player.addEventListener("click", async function click(e) {
         console.log("you clicked");
+        const clickedPlayer = e.currentTarget;
+        if (votedPlayer === null) {
+          clickedPlayer.style.background = "blue";
+          votedPlayer = clickedPlayer;
+        }
+        if (votedPlayer !== null && votedPlayer !== clickedPlayer) {
+          votedPlayer.style.background = "none";
+          clickedPlayer.style.background = "blue";
+          votedPlayer = clickedPlayer;
+        }
+        vote = clickedPlayer.id;
+        console.log(vote);
+        const postVote = await axios.post(`/games/${gameId}/voteWereWolf`, {
+          vote,
+        });
+        // console.log(postVote);
+        return;
       });
     }
   });
@@ -126,20 +140,27 @@ async function dayMode() {
   for (let i = 0; i < currentPlayersArr.length; i += 1) {
     if (!currentPlayersArr[i].alive) {
       playersDiv[i].style.background = "gray";
+      outputMsgContainer.textContent = `Poor villager ${playersDiv[i].textContent} got killed by werevolf! Attention! All villagers!! We must find the bad werewolf and put an end to it.`;
     }
   }
-  // console.log(result.data.playersArr);
   const activePlayersArr = result.data.playersArr;
-  console.log(activePlayersArr);
-  // console.log(currentPlayersArr);
-  console.log(currentPlayer);
   // Only active player can vote to kill werewolf
   const activePlayersDiv = [];
   activePlayersArr.forEach((player) => {
     activePlayersDiv.push(document.getElementById(`${player.id}`));
   });
-  console.log(activePlayersDiv);
+  // Call vote function
   voteWerewolf(activePlayersDiv, currentPlayer);
+  const voteResult = await axios.get(`/games/${gameId}/voteWerewolfResult`);
+  console.log(voteResult.data);
+
+  // const votedPlayer = voteResult.data.user;
+  // if (votedPlayer) {
+  //   const diedPlayerDiv = document.getElementById(`${votedPlayer.userId}`);
+  //   diedPlayerDiv.style.background = "red";
+  //   outputMsgContainer.textContent = `Poor villager ${diedPlayerDiv.textContent} got killed by werevolf! Attention! All villagers!! We must find the bad werewolf and put an end to it.`;
+  // }
+  return;
 }
 
 waitForPlayersgameId(gameId);

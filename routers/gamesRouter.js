@@ -60,14 +60,23 @@ class gamesRouter {
         this.controller.postVoteVillager.bind(this.controller)
       )
       .get(
-        "/games/:id/voteResult",
+        "/games/:id/voteVillagerResult",
         isLoggedIn,
-        this.controller.getVoteResult.bind(this.controller)
+        this.controller.getVoteVillagerResult.bind(this.controller)
       )
       .get(
         "/games/:id/activePlayers",
         isLoggedIn,
         this.controller.getActivePlayers.bind(this.controller)
+      )
+      .post(
+        "/games/:id/voteWereWolf",
+        isLoggedIn,
+        this.controller.postVoteWerewolf.bind(this.controller)
+      )
+      .get(
+        "/games/:id/voteWerewolfResult",
+        this.controller.getVoteWerewolfResult.bind(this.controller)
       );
     return router;
   }
