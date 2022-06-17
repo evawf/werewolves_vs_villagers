@@ -3,27 +3,26 @@ const db = require("../models/index");
 
 // Generate roles array
 const getRoles = () => {
-  const numOfPlayers = 3;
-  const numOfWerevolves = Math.floor(numOfPlayers / 3);
-  const roles = ["Werevolf", "Villager"];
-  const rolesArr = [];
-  for (let i = 0; i < numOfWerevolves; i += 1) {
-    rolesArr.push(roles[0]);
-  }
-  for (let i = 0; i < numOfPlayers - numOfWerevolves; i += 1) {
-    rolesArr.push(roles[1]);
-  }
-  // Shuffle roles
-  for (let i = rolesArr.length - 1; i > 0; i -= 1) {
-    let idx = Math.floor(Math.random() * i);
-    let temp = rolesArr[i];
-    rolesArr[i] = rolesArr[idx];
-    rolesArr[idx] = temp;
-  }
-  return rolesArr;
+  // const numOfPlayers = 3;
+  // const numOfWerevolves = Math.floor(numOfPlayers / 3);
+  // const roles = ["Werevolf", "Villager"];
+  // const rolesArr = [];
+  // for (let i = 0; i < numOfWerevolves; i += 1) {
+  //   rolesArr.push(roles[0]);
+  // }
+  // for (let i = 0; i < numOfPlayers - numOfWerevolves; i += 1) {
+  //   rolesArr.push(roles[1]);
+  // }
+  // // Shuffle roles
+  // for (let i = rolesArr.length - 1; i > 0; i -= 1) {
+  //   let idx = Math.floor(Math.random() * i);
+  //   let temp = rolesArr[i];
+  //   rolesArr[i] = rolesArr[idx];
+  //   rolesArr[idx] = temp;
+  // }
+  // return rolesArr;
+  return ["Werewolf", "Villager", "Villager"];
 };
-
-let roles = [];
 
 // Game logic
 class Games extends Base {
@@ -76,7 +75,6 @@ class Games extends Base {
       players: [],
     };
     gameInfo.players = game.users.map((p) => {
-      // console.log(p);
       const oneUser = {
         id: p.id,
         displayName: p.displayName,
@@ -100,43 +98,44 @@ class Games extends Base {
       },
     });
 
-    roles = getRoles();
-    if (alreadyJoined.length === 0) {
-      // Check joined players' role and make a arr
-      const joinedPlayers = await db.UserGame.findAll({
-        where: {
-          gameId: gameId,
-        },
-      });
-      console.log(joinedPlayers);
-      const existingRoles = [];
-      joinedPlayers.forEach((player) => {
-        existingRoles.push(player.role);
-      });
-      console.log(existingRoles);
+    if (alreadyJoined.length) return res.send("Joined!");
 
-      // if (roles.length === 0) roles = getRoles();
-      let rolesArr = [...roles];
-      for (let i = 0; i < rolesArr.length; i += 1) {
-        if (existingRoles.pop() === rolesArr[i])
-          rolesArr.splice(rolesArr[i], 1);
-        break;
+    // Check joined players' role and make a arr
+    const joinedPlayers = await db.UserGame.findAll({
+      where: {
+        gameId: gameId,
+      },
+    });
+    const existingRoles = [];
+    joinedPlayers.forEach((player) => {
+      existingRoles.push(player.role);
+    });
+
+    let roles = getRoles();
+    existingRoles.forEach((r) => {
+      if (roles.includes(r)) {
+        const index = roles.indexOf(r);
+        if (index > -1) {
+          roles.splice(index, 1); // 2nd parameter means remove one item only
+        }
       }
+    });
 
-      console.log(rolesArr);
+    if (roles.length > 0) {
       const user = await db.User.findByPk(currentUser.id);
       await game.addUser(user, {
         through: {
-          role: rolesArr.pop(),
+          role: roles.pop(),
           alive: true,
           gameState: "Waiting",
         },
       });
-      if (roles.length === 0) {
-        game.game_state = "Night";
-        await game.save();
-      }
     }
+    if (roles.length === 0) {
+      game.game_state = "Night";
+      await game.save();
+    }
+
     res.send("Joined!");
   }
 
@@ -175,22 +174,24 @@ class Games extends Base {
 
   async getVoteVillagerResult(req, res) {
     const gameId = req.params.id;
-    // const currentUser = res.locals.currentUser;
-    const players = await db.UserGame.findAll({
+    const activePlayers = await db.UserGame.findAll({
       where: {
         gameId: gameId,
-        // alive: true,
+        alive: true,
       },
     });
 
     let voteArr = [];
-    players.forEach((player) => {
+    activePlayers.forEach((player) => {
       if (player.vote !== null) {
         voteArr.push(player.vote);
       }
     });
+
+    let user;
     if (voteArr.length === 1) {
-      const user = await db.UserGame.findOne({
+      // replace 1 to num of werewolf for more players
+      user = await db.UserGame.findOne({
         where: {
           userId: Number(voteArr[0]),
           gameId: gameId,
@@ -199,11 +200,32 @@ class Games extends Base {
       });
       user.alive = false;
       await user.save();
+    }
+    // Check if active players > 1, if YES switch to "Day" mode, else switch to "Gameover"
+    if (activePlayers.length > 1 && voteArr.length === 1) {
+      // replace 1 to num of werewolf for more players
       const game = await this.model.findByPk(gameId);
       game.game_state = "Day";
       await game.save();
-      res.json({ user });
     }
+
+    // Check Win
+    const playersObj = { Villager: 0, Werewolf: 0 };
+    activePlayers.forEach((player) => {
+      if (player.role === "Villager") {
+        playersObj.Villager += 1;
+      }
+      if (player.role === "Werewolf") {
+        playersObj.Werewolf += 1;
+      }
+    });
+
+    if (playersObj.Villager === 0 || playersObj.Werewolf === 0) {
+      const game = await db.Game.findByPk(gameId);
+      game.game_state = "Game over";
+      await game.save();
+    }
+    res.json({ user });
   }
 
   async getActivePlayers(req, res) {
@@ -215,13 +237,11 @@ class Games extends Base {
       },
       include: [db.User],
     });
-    // console.log(players[0].user);
     const playersArr = [];
     players.forEach((player) => {
       playersArr.push(player.user);
     });
-    // console.log(playersArr);
-    res.json({ playersArr });
+    res.json({ playersArr, players });
   }
 
   async postVoteWerewolf(req, res) {
@@ -241,7 +261,7 @@ class Games extends Base {
 
   async getVoteWerewolfResult(req, res) {
     const gameId = req.params.id;
-    const players = await db.UserGame.findAll({
+    const activePlayers = await db.UserGame.findAll({
       where: {
         gameId: gameId,
         alive: true,
@@ -249,18 +269,17 @@ class Games extends Base {
     });
     // Collect vote
     const voteArr = [];
-    players.forEach((player) => {
-      if (player.vote !== "NULL") {
+    activePlayers.forEach((player) => {
+      if (player.vote !== null) {
         voteArr.push(Number(player.vote));
       }
     });
 
     // If all active players voted, then decide who will be killed
     let user;
-    if (voteArr.length === players.length) {
+    if (voteArr.length === activePlayers.length) {
       // If only tow active players, then random choose who gets killed
       let idx = Math.floor(Math.random() * voteArr.length);
-      console.log(voteArr[idx]);
       user = await db.UserGame.findOne({
         where: {
           userId: voteArr[idx],
@@ -272,28 +291,41 @@ class Games extends Base {
       await user.save();
       // If more active players, then higher votes player gets killed
       // .... to be added here
-    }
+      // }
 
-    // Check num of active players
-    const activeUsers = await db.UserGame.findAll({
-      where: {
-        gameId: gameId,
-        alive: true,
-      },
-    });
-    console.log(activeUsers.length);
-    if (activeUsers.length === 1) {
-      const game = await db.Game.findByPk(gameId);
-      console.log(game);
-      game.game_state = "Game over";
-      await game.save();
-    } else {
-      const game = await db.Game.findByPk(gameId);
-      game.game_state = "Night";
-      await game.save();
-    }
+      // // Check num of active players
+      // const activePlayers = await db.UserGame.findAll({
+      //   where: {
+      //     gameId: gameId,
+      //     alive: true,
+      //   },
+      // });
 
-    res.json({ user });
+      if (activePlayers.length > 1 && voteArr.length === activePlayers.length) {
+        const game = await db.Game.findByPk(gameId);
+        game.game_state = "Night";
+        await game.save();
+      }
+
+      // Check Win
+      const playersObj = { Villager: 0, Werewolf: 0 };
+      activePlayers.forEach((player) => {
+        if (player.role === "Villager") {
+          playersObj.Villager += 1;
+        }
+        if (player.role === "Werewolf") {
+          playersObj.Werewolf += 1;
+        }
+      });
+
+      if (playersObj.Villager === 0 || playersObj.Werewolf === 0) {
+        const game = await db.Game.findByPk(gameId);
+        game.game_state = "Game over";
+        await game.save();
+      }
+
+      res.json({ user });
+    }
   }
 }
 
