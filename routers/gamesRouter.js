@@ -77,6 +77,11 @@ class gamesRouter {
       .get(
         "/games/:id/voteWerewolfResult",
         this.controller.getVoteWerewolfResult.bind(this.controller)
+      )
+      .post(
+        "/games/:id/restartGame",
+        isLoggedIn,
+        this.controller.restartGame.bind(this.controller)
       );
     return router;
   }

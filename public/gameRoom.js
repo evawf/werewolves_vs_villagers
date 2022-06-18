@@ -1,6 +1,8 @@
 const playersContainer = document.getElementById("playersContainer");
 const outputMsgContainer = document.getElementById("outputMsg");
 const gameId = document.getElementById("gameId").value;
+const restartBtn = document.getElementById("restartBtn");
+restartBtn.style.display = "none";
 let currentPlayersArr = [];
 let currentPlayer;
 async function getCurrentPlayer() {
@@ -189,6 +191,14 @@ async function resetGame() {
   const players = result.data.players;
   const winners = players[0].role;
   outputMsgContainer.textContent = `Congrats! The winner is ${winners}s! Click the button to play again!`;
+  restartBtn.style.display = "block";
+  restartBtn.addEventListener("click", async () => {
+    try {
+      await axios.post(`/games/${gameId}/restartGame`);
+    } catch (error) {
+      console.log("Error message: ", error);
+    }
+  });
 }
 
 waitForPlayersgameId(gameId);

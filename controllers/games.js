@@ -293,14 +293,6 @@ class Games extends Base {
       // .... to be added here
       // }
 
-      // // Check num of active players
-      // const activePlayers = await db.UserGame.findAll({
-      //   where: {
-      //     gameId: gameId,
-      //     alive: true,
-      //   },
-      // });
-
       if (activePlayers.length > 1 && voteArr.length === activePlayers.length) {
         const game = await db.Game.findByPk(gameId);
         game.game_state = "Night";
@@ -326,6 +318,40 @@ class Games extends Base {
 
       res.json({ user });
     }
+  }
+
+  async restartGame(req, res) {
+    const gameId = req.params.id;
+    const gamePlayers = await db.UserGame.findAll({
+      where: {
+        gameId: gameId,
+      },
+    });
+
+    const roles = getRoles();
+    console.log(gamePlayers);
+    gamePlayers.forEach(async (player) => {
+      console.log;
+      await db.UserGame.update(
+        {
+          vote: "NULL",
+          alive: true,
+          role: roles.pop(),
+        },
+        {
+          where: {
+            userId: player.userId,
+            gameId: gameId,
+          },
+        }
+      );
+    });
+
+    const game = await this.model.findByPk(gameId);
+    game.game_state = "Night";
+    await game.save();
+
+    res.send("Night");
   }
 }
 
