@@ -82,6 +82,11 @@ class gamesRouter {
         "/games/:id/restartGame",
         isLoggedIn,
         this.controller.restartGame.bind(this.controller)
+      )
+      .post(
+        "/games/:id/quitGame",
+        isLoggedIn,
+        this.controller.quitGame.bind(this.controller)
       );
     return router;
   }

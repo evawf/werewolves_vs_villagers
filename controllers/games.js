@@ -329,12 +329,10 @@ class Games extends Base {
     });
 
     const roles = getRoles();
-    console.log(gamePlayers);
     gamePlayers.forEach(async (player) => {
-      console.log;
       await db.UserGame.update(
         {
-          vote: "NULL",
+          vote: null,
           alive: true,
           role: roles.pop(),
         },
@@ -350,8 +348,21 @@ class Games extends Base {
     const game = await this.model.findByPk(gameId);
     game.game_state = "Night";
     await game.save();
-
     res.send("Night");
+  }
+
+  async quitGame(req, res) {
+    const gameId = req.params.id;
+    const currentUser = res.locals.currentUser;
+    const leavedPlayer = await db.UserGame.findOne({
+      where: {
+        gameId: gameId,
+        userId: currentUser.id,
+      },
+      include: [db.User],
+    });
+    await leavedPlayer.destroy();
+    res.json({ leavedPlayer });
   }
 }
 
