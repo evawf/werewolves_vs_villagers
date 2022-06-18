@@ -12,7 +12,7 @@ const initGameModel = (sequelize, DataTypes) => {
         allowNull: false,
         type: DataTypes.TEXT,
       },
-      game_state: {
+      gameState: {
         allowNull: false,
         type: DataTypes.TEXT,
       },

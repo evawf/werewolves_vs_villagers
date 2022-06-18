@@ -59,25 +59,25 @@ class gamesRouter {
         isLoggedIn,
         this.controller.postVoteVillager.bind(this.controller)
       )
+      // .get(
+      //   "/games/:id/voteVillagerResult",
+      //   isLoggedIn,
+      //   this.controller.getVoteVillagerResult.bind(this.controller)
+      // )
       .get(
-        "/games/:id/voteVillagerResult",
+        "/games/:id/players",
         isLoggedIn,
-        this.controller.getVoteVillagerResult.bind(this.controller)
-      )
-      .get(
-        "/games/:id/activePlayers",
-        isLoggedIn,
-        this.controller.getActivePlayers.bind(this.controller)
+        this.controller.getGamePlayers.bind(this.controller)
       )
       .post(
         "/games/:id/voteWereWolf",
         isLoggedIn,
         this.controller.postVoteWerewolf.bind(this.controller)
       )
-      .get(
-        "/games/:id/voteWerewolfResult",
-        this.controller.getVoteWerewolfResult.bind(this.controller)
-      )
+      // .get(
+      //   "/games/:id/voteWerewolfResult",
+      //   this.controller.getVoteWerewolfResult.bind(this.controller)
+      // )
       .post(
         "/games/:id/restartGame",
         isLoggedIn,

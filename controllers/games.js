@@ -13,15 +13,16 @@ const getRoles = () => {
   // for (let i = 0; i < numOfPlayers - numOfWerevolves; i += 1) {
   //   rolesArr.push(roles[1]);
   // }
-  // // Shuffle roles
-  // for (let i = rolesArr.length - 1; i > 0; i -= 1) {
-  //   let idx = Math.floor(Math.random() * i);
-  //   let temp = rolesArr[i];
-  //   rolesArr[i] = rolesArr[idx];
-  //   rolesArr[idx] = temp;
-  // }
-  // return rolesArr;
-  return ["Werewolf", "Villager", "Villager"];
+  // let roles = ["Werewolf", "Villager", "Werewolf", "Villager", "Villager"];
+  let roles = ["Werewolf", "Villager", "Villager"];
+  // Shuffle roles
+  for (let i = roles.length - 1; i > 0; i -= 1) {
+    let idx = Math.floor(Math.random() * i);
+    let temp = roles[i];
+    roles[i] = roles[idx];
+    roles[idx] = temp;
+  }
+  return roles;
 };
 
 // Game logic
@@ -72,6 +73,7 @@ class Games extends Base {
 
     const gameInfo = {
       gameId: game.id,
+      gameState: game.gameState,
       players: [],
     };
     gameInfo.players = game.users.map((p) => {
@@ -85,6 +87,7 @@ class Games extends Base {
       return oneUser;
     });
 
+    console.log(gameInfo);
     res.json(gameInfo);
   }
 
@@ -92,6 +95,9 @@ class Games extends Base {
     const gameId = req.body.gameId;
     const currentUser = res.locals.currentUser;
     const game = await this.model.findByPk(gameId);
+    if (game.gameState !== "Waiting") {
+      return res.send("Game started");
+    }
     const alreadyJoined = await game.getUsers({
       where: {
         id: Number(currentUser.id),
@@ -131,8 +137,15 @@ class Games extends Base {
         },
       });
     }
-    if (roles.length === 0) {
-      game.game_state = "Night";
+    const activePlayers = await db.UserGame.findAll({
+      where: {
+        gameId: gameId,
+      },
+    });
+    console.log(joinedPlayers.length);
+    console.log(activePlayers.length);
+    if (activePlayers.length === 3) {
+      game.gameState = "Night";
       await game.save();
     }
 
@@ -159,6 +172,13 @@ class Games extends Base {
 
   async postVoteVillager(req, res) {
     const gameId = req.params.id;
+    const game = await this.model.findByPk(gameId);
+
+    if (game.gameState !== "Night") {
+      res.send("Vote finisehd!");
+      return;
+    }
+
     const currentUser = res.locals.currentUser;
     const vote = req.body.vote;
     const user = await db.UserGame.findOne({
@@ -169,138 +189,57 @@ class Games extends Base {
     });
     user.vote = vote;
     await user.save();
-    res.send("Vote posted!");
-  }
 
-  async getVoteVillagerResult(req, res) {
-    const gameId = req.params.id;
-    const activePlayers = await db.UserGame.findAll({
+    // check if every werewolves have voted
+
+    const werewolves = await game.getUserGames({
       where: {
-        gameId: gameId,
         alive: true,
+        role: "Werewolf",
       },
     });
 
-    let voteArr = [];
-    activePlayers.forEach((player) => {
-      if (player.vote !== null) {
-        voteArr.push(player.vote);
+    let allVoted = true;
+    let votes = {};
+    let maxCount = 0;
+    let selected = null;
+    werewolves.forEach((w) => {
+      if (w.vote) {
+        if (votes[w.vote] == null) votes[w.vote] = 1;
+        else votes[w.vote]++;
+
+        if (votes[w.vote] === maxCount) {
+          selected.push(w.vote);
+        }
+        if (votes[w.vote] > maxCount) {
+          selected = [w.vote];
+          maxCount = votes[w.vote];
+        }
+      } else {
+        allVoted = false;
       }
     });
 
-    let user;
-    if (voteArr.length === 1) {
-      // replace 1 to num of werewolf for more players
-      user = await db.UserGame.findOne({
+    if (allVoted) {
+      //All werewolves have voted, switch to day mode
+      let toKill = selected.pop();
+      const user = await db.UserGame.findOne({
         where: {
-          userId: Number(voteArr[0]),
+          userId: Number(toKill),
           gameId: gameId,
         },
         include: [db.User, db.Game],
       });
       user.alive = false;
       await user.save();
-    }
-    // Check if active players > 1, if YES switch to "Day" mode, else switch to "Gameover"
-    if (activePlayers.length > 1 && voteArr.length === 1) {
-      // replace 1 to num of werewolf for more players
-      const game = await this.model.findByPk(gameId);
-      game.game_state = "Day";
-      await game.save();
-    }
-
-    // Check Win
-    const playersObj = { Villager: 0, Werewolf: 0 };
-    activePlayers.forEach((player) => {
-      if (player.role === "Villager") {
-        playersObj.Villager += 1;
-      }
-      if (player.role === "Werewolf") {
-        playersObj.Werewolf += 1;
-      }
-    });
-
-    if (playersObj.Villager === 0 || playersObj.Werewolf === 0) {
-      const game = await db.Game.findByPk(gameId);
-      game.game_state = "Game over";
-      await game.save();
-    }
-    res.json({ user });
-  }
-
-  async getActivePlayers(req, res) {
-    const gameId = req.params.id;
-    const players = await db.UserGame.findAll({
-      where: {
-        gameId: gameId,
-        alive: true,
-      },
-      include: [db.User],
-    });
-    const playersArr = [];
-    players.forEach((player) => {
-      playersArr.push(player.user);
-    });
-    res.json({ playersArr, players });
-  }
-
-  async postVoteWerewolf(req, res) {
-    const gameId = req.params.id;
-    const currentUser = res.locals.currentUser;
-    const vote = req.body.vote;
-    const user = await db.UserGame.findOne({
-      where: {
-        userId: currentUser.id,
-        gameId: gameId,
-      },
-    });
-    user.vote = vote;
-    await user.save();
-    res.send("voted!");
-  }
-
-  async getVoteWerewolfResult(req, res) {
-    const gameId = req.params.id;
-    const activePlayers = await db.UserGame.findAll({
-      where: {
-        gameId: gameId,
-        alive: true,
-      },
-    });
-    // Collect vote
-    const voteArr = [];
-    activePlayers.forEach((player) => {
-      if (player.vote !== null) {
-        voteArr.push(Number(player.vote));
-      }
-    });
-
-    // If all active players voted, then decide who will be killed
-    let user;
-    if (voteArr.length === activePlayers.length) {
-      // If only tow active players, then random choose who gets killed
-      let idx = Math.floor(Math.random() * voteArr.length);
-      user = await db.UserGame.findOne({
-        where: {
-          userId: voteArr[idx],
-          gameId: gameId,
-        },
-        include: [db.User, db.Game],
-      });
-      user.alive = false;
-      await user.save();
-      // If more active players, then higher votes player gets killed
-      // .... to be added here
-      // }
-
-      if (activePlayers.length > 1 && voteArr.length === activePlayers.length) {
-        const game = await db.Game.findByPk(gameId);
-        game.game_state = "Night";
-        await game.save();
-      }
 
       // Check Win
       const playersObj = { Villager: 0, Werewolf: 0 };
+      const activePlayers = await game.getUserGames({
+        where: {
+          alive: true,
+        },
+      });
       activePlayers.forEach((player) => {
         if (player.role === "Villager") {
           playersObj.Villager += 1;
@@ -311,14 +250,258 @@ class Games extends Base {
       });
 
       if (playersObj.Villager === 0 || playersObj.Werewolf === 0) {
-        const game = await db.Game.findByPk(gameId);
-        game.game_state = "Game over";
+        game.gameState = "Game over";
+        await game.save();
+      } else {
+        const activePlayers = await game.getUserGames({
+          where: {
+            alive: true,
+          },
+        });
+        activePlayers.forEach(async (player) => {
+          player.vote = null;
+          await player.save();
+        });
+        game.gameState = "Day";
         await game.save();
       }
-
-      res.json({ user });
     }
+    res.send("Vote posted!");
   }
+
+  // async getVoteVillagerResult(req, res) {
+  //   const gameId = req.params.id;
+  //   const activePlayers = await db.UserGame.findAll({
+  //     where: {
+  //       gameId: gameId,
+  //       alive: true,
+  //     },
+  //   });
+
+  //   let voteArr = [];
+  //   activePlayers.forEach((player) => {
+  //     if (player.vote !== null) {
+  //       voteArr.push(player.vote);
+  //     }
+  //   });
+
+  //   let user;
+  //   if (voteArr.length === 1) {
+  //     // replace 1 to num of werewolf for more players
+  //     user = await db.UserGame.findOne({
+  //       where: {
+  //         userId: Number(voteArr[0]),
+  //         gameId: gameId,
+  //       },
+  //       include: [db.User, db.Game],
+  //     });
+  //     user.alive = false;
+  //     await user.save();
+  //   }
+  //   // Check if active players > 1, if YES switch to "Day" mode, else switch to "Gameover"
+  //   if (activePlayers.length > 1 && voteArr.length === 1) {
+  //     // replace 1 to num of werewolf for more players
+  //     const game = await this.model.findByPk(gameId);
+  //     game.gameState = "Day";
+  //     await game.save();
+  //   }
+
+  // Check Win
+  //   const playersObj = { Villager: 0, Werewolf: 0 };
+  //   activePlayers.forEach((player) => {
+  //     if (player.role === "Villager") {
+  //       playersObj.Villager += 1;
+  //     }
+  //     if (player.role === "Werewolf") {
+  //       playersObj.Werewolf += 1;
+  //     }
+  //   });
+
+  //   if (playersObj.Villager === 0 || playersObj.Werewolf === 0) {
+  //     const game = await db.Game.findByPk(gameId);
+  //     game.gameState = "Game over";
+  //     await game.save();
+  //   }
+  //   res.json({ user });
+  // }
+
+  async getGamePlayers(req, res) {
+    const gameId = req.params.id;
+    const players = await db.UserGame.findAll({
+      where: {
+        gameId: gameId,
+        alive: true,
+      },
+      include: [db.User],
+    });
+    const playersArr = [];
+    players.forEach((player) => {
+      playersArr.push({
+        userId: player.user.id,
+        role: player.role,
+        alive: player.alive,
+      });
+    });
+    res.json(playersArr);
+  }
+
+  async postVoteWerewolf(req, res) {
+    const gameId = req.params.id;
+    const game = await this.model.findByPk(gameId);
+
+    if (game.gameState !== "Day") {
+      res.send("Vote finisehd!");
+      return;
+    }
+
+    const currentUser = res.locals.currentUser;
+    const vote = req.body.vote;
+    const user = await db.UserGame.findOne({
+      where: {
+        userId: currentUser.id,
+        gameId: gameId,
+      },
+    });
+    user.vote = vote;
+    await user.save();
+
+    //check if everyone have voted
+    const allPlayers = await game.getUserGames({
+      where: {
+        alive: true,
+      },
+    });
+
+    let allVoted = true;
+    let votes = {};
+    let maxCount = 0;
+    let selected = null;
+    allPlayers.forEach((p) => {
+      if (p.vote) {
+        if (votes[p.vote] == null) votes[p.vote] = 1;
+        else votes[p.vote]++;
+
+        if (votes[p.vote] === maxCount) {
+          selected.push(p.vote);
+        }
+        if (votes[p.vote] > maxCount) {
+          selected = [p.vote];
+          maxCount = votes[p.vote];
+        }
+      } else {
+        allVoted = false;
+      }
+    });
+
+    if (allVoted) {
+      //All werewolves have voted, switch to day mode
+      let toKill = selected.pop();
+      const user = await db.UserGame.findOne({
+        where: {
+          userId: Number(toKill),
+          gameId: gameId,
+        },
+        include: [db.User, db.Game],
+      });
+      user.alive = false;
+      await user.save();
+
+      // Check Win
+      const playersObj = { Villager: 0, Werewolf: 0 };
+      const activePlayers = await game.getUserGames({
+        where: {
+          alive: true,
+        },
+      });
+      activePlayers.forEach((player) => {
+        if (player.role === "Villager") {
+          playersObj.Villager += 1;
+        }
+        if (player.role === "Werewolf") {
+          playersObj.Werewolf += 1;
+        }
+      });
+
+      if (playersObj.Villager === 0 || playersObj.Werewolf === 0) {
+        game.gameState = "Game over";
+        await game.save();
+      } else {
+        const activePlayers = await game.getUserGames({
+          where: {
+            alive: true,
+          },
+        });
+        activePlayers.forEach(async (player) => {
+          player.vote = null;
+          await player.save();
+        });
+        game.gameState = "Night";
+        await game.save();
+      }
+    }
+    res.send("Vote posted!");
+  }
+
+  // async getVoteWerewolfResult(req, res) {
+  //   const gameId = req.params.id;
+  //   const activePlayers = await db.UserGame.findAll({
+  //     where: {
+  //       gameId: gameId,
+  //       alive: true,
+  //     },
+  //   });
+  //   // Collect vote
+  //   const voteArr = [];
+  //   activePlayers.forEach((player) => {
+  //     if (player.vote !== null) {
+  //       voteArr.push(Number(player.vote));
+  //     }
+  //   });
+
+  //   // If all active players voted, then decide who will be killed
+  //   let user;
+  //   if (voteArr.length === activePlayers.length) {
+  //     // If only tow active players, then random choose who gets killed
+  //     let idx = Math.floor(Math.random() * voteArr.length);
+  //     user = await db.UserGame.findOne({
+  //       where: {
+  //         userId: voteArr[idx],
+  //         gameId: gameId,
+  //       },
+  //       include: [db.User, db.Game],
+  //     });
+  //     user.alive = false;
+  //     await user.save();
+  //     // If more active players, then higher votes player gets killed
+  //     // .... to be added here
+  //     // }
+
+  //     if (activePlayers.length > 1 && voteArr.length === activePlayers.length) {
+  //       const game = await db.Game.findByPk(gameId);
+  //       game.gameState = "Night";
+  //       await game.save();
+  //     }
+
+  //     // Check Win
+  //     const playersObj = { Villager: 0, Werewolf: 0 };
+  //     activePlayers.forEach((player) => {
+  //       if (player.role === "Villager") {
+  //         playersObj.Villager += 1;
+  //       }
+  //       if (player.role === "Werewolf") {
+  //         playersObj.Werewolf += 1;
+  //       }
+  //     });
+
+  //     if (playersObj.Villager === 0 || playersObj.Werewolf === 0) {
+  //       const game = await db.Game.findByPk(gameId);
+  //       game.gameState = "Game over";
+  //       await game.save();
+  //     }
+
+  //     res.json({ user });
+  //   }
+  // }
 
   async restartGame(req, res) {
     const gameId = req.params.id;
@@ -345,8 +528,13 @@ class Games extends Base {
       );
     });
 
+    const activePlayers = await game.getUserGames();
+    activePlayers.forEach(async (player) => {
+      player.vote = null;
+      await player.save();
+    });
     const game = await this.model.findByPk(gameId);
-    game.game_state = "Night";
+    game.gameState = "Night";
     await game.save();
     res.send("Night");
   }
@@ -362,6 +550,17 @@ class Games extends Base {
       include: [db.User],
     });
     await leavedPlayer.destroy();
+    const activePlayers = await db.UserGame.findAll({
+      where: {
+        gameId: gameId,
+      },
+    });
+    if (activePlayers.length === 0) {
+      const game = await this.model.findByPk(gameId);
+      game.gameState = "Waiting";
+      await game.save();
+    }
+
     res.json({ leavedPlayer });
   }
 }

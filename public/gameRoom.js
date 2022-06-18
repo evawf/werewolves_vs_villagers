@@ -6,13 +6,18 @@ const quitBtn = document.getElementById("quitBtn");
 restartBtn.style.display = "none";
 let currentPlayersArr = [];
 let currentPlayer;
-async function getCurrentPlayer() {
-  const result = await axios.get(`/games/${gameId}/getCurrentPlayer`);
-  currentPlayer = result.data.player;
-}
 
-async function waitForPlayersgameId(gameId) {
-  const result = await axios.get(`/games/${gameId}/info`);
+async function WaitForPlayers(gameId) {
+  let result = await axios.get(`/games/${gameId}/getCurrentPlayer`);
+  console.log(result.data);
+  currentPlayer = {
+    id: result.data.player?.userId,
+    role: result.data.player?.role,
+  };
+
+  result = await axios.get(`/games/${gameId}/info`);
+
+  console.log(result.data);
   // if there any new players:
   if (result.data.players.length > currentPlayersArr.length) {
     result.data.players.forEach((player) => {
@@ -29,6 +34,7 @@ async function waitForPlayersgameId(gameId) {
         const pRole = document.createElement("p");
         newPlayerDiv.className = "player";
         newPlayerDiv.id = player.id;
+        newPlayerDiv.dataset.you = player.you;
         pName.textContent = player.displayName;
         pRole.textContent = player.role;
         newPlayerDiv.append(pName);
@@ -37,36 +43,42 @@ async function waitForPlayersgameId(gameId) {
       }
     });
   }
-  if (currentPlayersArr.length === 3) {
-    const result = await axios.get(`/games/${gameId}/gameState`);
-    let game_state = result.data.game.game_state;
-    if (game_state === "Night") {
-      outputMsgContainer.textContent =
-        "Game start: NIGHT - Werevolves open your eyes and choose a villager to kill!";
-      nightMode();
-    }
-    if (game_state === "Day") {
-      console.log("day mode");
-      dayMode();
-    }
-    if (game_state === "Game over") {
-      console.log("Game over");
-      // If game over, players can restart the game or leave the game
-      resetGame();
-    }
-  }
-  if (currentPlayersArr.length < 3) {
+
+  let gameState = result.data.gameState;
+
+  if (gameState === "Waiting") {
     outputMsgContainer.textContent =
       "Please wait for more players to join the room.";
+    setTimeout(WaitForPlayers.bind(null, gameId), 2000);
+    return;
   }
-  setTimeout(waitForPlayersgameId.bind(null, gameId), 2000);
+
+  if (gameState === "Night") {
+    outputMsgContainer.textContent =
+      "Game start: NIGHT - Werevolves open your eyes and choose a villager to kill!";
+    nightMode();
+    return;
+  }
+  if (gameState === "Day") {
+    console.log("day mode");
+    dayMode();
+    return;
+  }
+  if (gameState === "Game over") {
+    //  console.log("Game over");
+    // If game over, players can restart the game or leave the game
+    alert("Game over");
+    resetGame();
+    //resetGame();
+    return;
+  }
 }
 
-function voteVillager(players, werevolf) {
+function installVoteVillagerClickEvent(playersDivs) {
   let votedVillager = null;
   let vote = null;
-  players.forEach((player) => {
-    if (Number(player.id) !== werevolf.userId) {
+  playersDivs.forEach((player) => {
+    if (player.dataset.you === "false") {
       player.addEventListener("click", async function click(e) {
         const clickedVillager = e.currentTarget;
         // Choose one villager only
@@ -93,45 +105,70 @@ function voteVillager(players, werevolf) {
 async function nightMode() {
   outputMsgContainer.textContent =
     "Game start: NIGHT - Werevolves open your eyes and choose a villager to kill!";
-  document.body.style.background = "gray";
+  document.body.style.background = "#FFB6C1";
 
-  const getActivePlayers = await axios.get(`/games/${gameId}/activePlayers`);
-  const activePlayersArr = getActivePlayers.data.playersArr;
-  console.log(activePlayersArr);
+  const result = await axios.get(`/games/${gameId}/players`);
+  const alive = result.data.filter((p) => p.alive).map((p) => p.userId);
   const playersDiv = document.querySelectorAll(".player");
-  for (let i = 0; i < currentPlayer.length; i += 1) {
-    if (!currentPlayer[i].alive) {
+
+  for (let i = 0; i < currentPlayersArr.length; i += 1) {
+    if (!alive.includes(currentPlayersArr[i].id)) {
       playersDiv[i].style.background = "gray";
-      currentPlayer[i].role = activePlayersArr[i].role;
-      outputMsgContainer.textContent = `Poor ${currentPlayer[i].role} ${playersDiv[i].textContent} got killed`;
+      outputMsgContainer.textContent = `Poor villager ${playersDiv[i].textContent} got killed! Attention! All villagers!! We must find the bad werewolf and put an end to it.`;
     }
   }
-  // Werewolf select a villager
-  const activePlayersDiv = [];
-  activePlayersArr.forEach((player) => {
-    activePlayersDiv.push(document.getElementById(`${player.id}`));
-  });
 
+  // const getActivePlayers = await axios.get(`/games/${gameId}/activePlayers`);
+  // const activePlayersArr = getActivePlayers.data.playersArr;
+  // const playersDiv = document.querySelectorAll(".player");
+  // for (let i = 0; i < currentPlayer.length; i += 1) {
+  //   if (!currentPlayer[i].alive) {
+  //     playersDiv[i].style.background = "gray";
+  //     currentPlayer[i].role = activePlayersArr[i].role;
+  //     outputMsgContainer.textContent = `Poor ${currentPlayer[i].role} ${playersDiv[i].textContent} got killed`;
+  //   }
+  // }
+
+  // Werewolf select a villager
   if (currentPlayer.role === "Werewolf") {
-    console.log(currentPlayer);
-    voteVillager(activePlayersDiv, currentPlayer);
+    const activePlayersDiv = [];
+    alive.forEach((playerId) => {
+      activePlayersDiv.push(document.getElementById(`${playerId}`));
+    });
+
+    installVoteVillagerClickEvent(activePlayersDiv);
   }
-  const voteResult = await axios.get(`/games/${gameId}/voteVillagerResult`);
-  const votedVillager = voteResult.data.user;
-  if (votedVillager) {
-    const diedVillagerDiv = document.getElementById(`${votedVillager.userId}`);
-    diedVillagerDiv.style.background = "red";
-  }
-  return;
+
+  waitForNightToFinish();
 }
 
-function voteWerewolf(players, currentPlayer) {
+async function waitForNightToFinish() {
+  const result = await axios.get(`/games/${gameId}/info`);
+  const game = result.data;
+  if (game.gameState === "Night") {
+    setTimeout(waitForNightToFinish, 2000);
+    return;
+  }
+
+  //go to day mode
+  if (game.gameState === "Game over") {
+    alert("Game over");
+    resetGame();
+    return;
+  }
+  if (game.gameState === "Day") {
+    dayMode();
+    return;
+  }
+}
+
+function installVoteWerewolfClickEvent(playersDivs) {
+  console.log(playersDivs);
   let vote = null;
   let votedPlayer = null;
-  // console.log(players);
-  // console.log(currentPlayer);
-  players.forEach((player) => {
-    if (Number(player.id) !== currentPlayer.userId && currentPlayer.alive) {
+  playersDivs.forEach((player) => {
+    console.log(player);
+    if (player.dataset.you === "false") {
       player.addEventListener("click", async function click(e) {
         console.log("you clicked");
         const clickedPlayer = e.currentTarget;
@@ -156,44 +193,74 @@ function voteWerewolf(players, currentPlayer) {
 }
 
 async function dayMode() {
-  document.body.style.background = "none";
-  const result = await axios.get(`/games/${gameId}/activePlayers`);
+  document.body.style.background = "Yellow";
+
+  const result = await axios.get(`/games/${gameId}/players`);
+  const alive = result.data.filter((p) => p.alive).map((p) => p.userId);
   const playersDiv = document.querySelectorAll(".player");
+
   for (let i = 0; i < currentPlayersArr.length; i += 1) {
-    if (!currentPlayersArr[i].alive) {
+    if (!alive.includes(currentPlayersArr[i].id)) {
       playersDiv[i].style.background = "gray";
       outputMsgContainer.textContent = `Poor villager ${playersDiv[i].textContent} got killed! Attention! All villagers!! We must find the bad werewolf and put an end to it.`;
     }
   }
-  const activePlayersArr = result.data.playersArr;
+
   // Only active player can vote to kill werewolf
   const activePlayersDiv = [];
-  activePlayersArr.forEach((player) => {
-    activePlayersDiv.push(document.getElementById(`${player.id}`));
+  alive.forEach((id) => {
+    activePlayersDiv.push(document.getElementById(`${id}`));
   });
-  // Call vote function
-  voteWerewolf(activePlayersDiv, currentPlayer);
-  const voteResult = await axios.get(`/games/${gameId}/voteWerewolfResult`);
-  console.log(voteResult.data.user);
 
-  const votedPlayer = voteResult.data.user;
-  console.log(votedPlayer.user.displayName);
-  if (votedPlayer) {
-    const diedPlayerDiv = document.getElementById(`${votedPlayer.userId}`);
-    diedPlayerDiv.style.background = "red";
-    if (votedPlayer.role == "Werewolf") {
-      outputMsgContainer.textContent = `Hoooooooray!!! Werewolf ${votedPlayer.user.displayName} got killed!`;
-    } else {
-      outputMsgContainer.textContent = `Oh no!!! Poor villager ${votedPlayer.user.displayName} got killed!`;
-    }
+  // Call vote function
+  if (alive.includes(currentPlayer.id)) {
+    installVoteWerewolfClickEvent(activePlayersDiv);
   }
-  return;
+
+  waitForDayToFinish();
+  // const voteResult = await axios.get(`/games/${gameId}/voteWerewolfResult`);
+  // console.log(voteResult.data.user);
+
+  // const votedPlayer = voteResult.data.user;
+  // console.log(votedPlayer.user.displayName);
+  // if (votedPlayer) {
+  //   const diedPlayerDiv = document.getElementById(`${votedPlayer.userId}`);
+  //   diedPlayerDiv.style.background = "red";
+  //   if (votedPlayer.role == "Werewolf") {
+  //     outputMsgContainer.textContent = `Hoooooooray!!! Werewolf ${votedPlayer.user.displayName} got killed!`;
+  //   } else {
+  //     outputMsgContainer.textContent = `Oh no!!! Poor villager ${votedPlayer.user.displayName} got killed!`;
+  //   }
+  // }
+  // return;
+}
+
+async function waitForDayToFinish() {
+  const result = await axios.get(`/games/${gameId}/info`);
+  const game = result.data;
+  if (game.gameState === "Day") {
+    setTimeout(waitForDayToFinish, 2000);
+    return;
+  }
+
+  //go to day mode
+  if (game.gameState === "Game over") {
+    alert("Game over");
+    resetGame();
+    return;
+  }
+  if (game.gameState === "Night") {
+    nightMode();
+    return;
+  }
 }
 
 async function resetGame() {
-  const result = await axios.get(`/games/${gameId}/activePlayers`);
-  const players = result.data.players;
-  const winners = players[0].role;
+  const result = await axios.get(`/games/${gameId}/players`);
+  console.log(result.data);
+  const players = result.data;
+  let alivePlayers = players.filter((p) => p.alive);
+  const winners = alivePlayers[0].role;
   outputMsgContainer.textContent = `Congrats! The winner is ${winners}! Click the button to play again!`;
   restartBtn.style.display = "block";
   restartBtn.addEventListener("click", async () => {
@@ -217,8 +284,6 @@ async function quitGame() {
   outputMsgContainer.textContent = `${leavedPlayerName} left this room.`;
   window.location.href = `/gameHall`;
 }
-
 quitBtn.addEventListener("click", quitGame);
 
-waitForPlayersgameId(gameId);
-getCurrentPlayer();
+WaitForPlayers(gameId);

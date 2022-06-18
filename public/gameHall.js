@@ -51,7 +51,7 @@ async function showNewGameRooms() {
       });
     });
   }
-  // setTimeout(showNewGameRooms.bind(), 2000);
+  setTimeout(showNewGameRooms.bind(), 2000);
 }
 
 showNewGameRooms();
