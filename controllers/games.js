@@ -32,7 +32,6 @@ class Games extends Base {
   }
 
   async showGameHall(req, res) {
-    // const games = await this.model.findAll();
     const players = await this.model.findAll({ include: [db.UserGame] });
     const currentUser = res.locals.currentUser;
     res.render("gameHall", { games: players, currentUser: currentUser });
@@ -87,7 +86,6 @@ class Games extends Base {
       return oneUser;
     });
 
-    console.log(gameInfo);
     res.json(gameInfo);
   }
 
@@ -142,13 +140,10 @@ class Games extends Base {
         gameId: gameId,
       },
     });
-    console.log(joinedPlayers.length);
-    console.log(activePlayers.length);
     if (activePlayers.length === 3) {
       game.gameState = "Night";
       await game.save();
     }
-
     res.send("Joined!");
   }
 
@@ -505,38 +500,38 @@ class Games extends Base {
 
   async restartGame(req, res) {
     const gameId = req.params.id;
-    const gamePlayers = await db.UserGame.findAll({
+    const currentUser = res.locals.currentUser;
+
+    const restartedPlayer = await db.UserGame.findOne({
       where: {
         gameId: gameId,
+        userId: Number(currentUser.id),
       },
     });
 
-    const roles = getRoles();
-    gamePlayers.forEach(async (player) => {
-      await db.UserGame.update(
-        {
-          vote: null,
-          alive: true,
-          role: roles.pop(),
-        },
-        {
-          where: {
-            userId: player.userId,
-            gameId: gameId,
-          },
-        }
-      );
+    let roles = getRoles();
+    await restartedPlayer.update({
+      vote: null,
+      alive: true,
+      role: roles.pop(),
     });
 
-    const activePlayers = await game.getUserGames();
-    activePlayers.forEach(async (player) => {
-      player.vote = null;
-      await player.save();
-    });
     const game = await this.model.findByPk(gameId);
-    game.gameState = "Night";
-    await game.save();
-    res.send("Night");
+    const activePlayers = await game.getUserGames({
+      where: {
+        alive: true,
+      },
+    });
+
+    console.log(activePlayers.length);
+    if (activePlayers.length === 3) {
+      game.gameState = "Night";
+      await game.save();
+      res.send("Night");
+      return;
+    }
+
+    res.send({ restartedPlayer });
   }
 
   async quitGame(req, res) {
@@ -555,7 +550,7 @@ class Games extends Base {
         gameId: gameId,
       },
     });
-    if (activePlayers.length === 0) {
+    if (activePlayers.length < 3) {
       const game = await this.model.findByPk(gameId);
       game.gameState = "Waiting";
       await game.save();

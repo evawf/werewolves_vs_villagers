@@ -67,9 +67,9 @@ async function WaitForPlayers(gameId) {
   if (gameState === "Game over") {
     //  console.log("Game over");
     // If game over, players can restart the game or leave the game
-    alert("Game over");
-    resetGame();
-    //resetGame();
+    // alert("Game over");
+    restartGame();
+    //restartGame();
     return;
   }
 }
@@ -153,7 +153,7 @@ async function waitForNightToFinish() {
   //go to day mode
   if (game.gameState === "Game over") {
     alert("Game over");
-    resetGame();
+    restartGame();
     return;
   }
   if (game.gameState === "Day") {
@@ -218,21 +218,6 @@ async function dayMode() {
   }
 
   waitForDayToFinish();
-  // const voteResult = await axios.get(`/games/${gameId}/voteWerewolfResult`);
-  // console.log(voteResult.data.user);
-
-  // const votedPlayer = voteResult.data.user;
-  // console.log(votedPlayer.user.displayName);
-  // if (votedPlayer) {
-  //   const diedPlayerDiv = document.getElementById(`${votedPlayer.userId}`);
-  //   diedPlayerDiv.style.background = "red";
-  //   if (votedPlayer.role == "Werewolf") {
-  //     outputMsgContainer.textContent = `Hoooooooray!!! Werewolf ${votedPlayer.user.displayName} got killed!`;
-  //   } else {
-  //     outputMsgContainer.textContent = `Oh no!!! Poor villager ${votedPlayer.user.displayName} got killed!`;
-  //   }
-  // }
-  // return;
 }
 
 async function waitForDayToFinish() {
@@ -246,7 +231,7 @@ async function waitForDayToFinish() {
   //go to day mode
   if (game.gameState === "Game over") {
     alert("Game over");
-    resetGame();
+    restartGame();
     return;
   }
   if (game.gameState === "Night") {
@@ -255,9 +240,8 @@ async function waitForDayToFinish() {
   }
 }
 
-async function resetGame() {
+async function restartGame() {
   const result = await axios.get(`/games/${gameId}/players`);
-  console.log(result.data);
   const players = result.data;
   let alivePlayers = players.filter((p) => p.alive);
   const winners = alivePlayers[0].role;
@@ -271,11 +255,26 @@ async function resetGame() {
         player.style.background = "none";
       });
       outputMsgContainer.textContent =
-        "Game start: NIGHT - Werevolves open your eyes and choose a villager to kill!";
+        "Wait for all players click restart button.";
+      restartBtn.style.display = "none";
     } catch (error) {
       console.log("Error message: ", error);
     }
   });
+  waitForAllPlayerRestartGame();
+}
+
+async function waitForAllPlayerRestartGame() {
+  const result = await axios.get(`/games/${gameId}/info`);
+  const game = result.data;
+  if (game.gameState === "Game over") {
+    setTimeout(waitForAllPlayerRestartGame, 2000);
+    return;
+  }
+  if (game.gameState === "Night") {
+    nightMode();
+    return;
+  }
 }
 
 async function quitGame() {
