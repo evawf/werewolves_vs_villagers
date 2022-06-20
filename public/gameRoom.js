@@ -8,15 +8,15 @@ let currentPlayersArr = [];
 let currentPlayer;
 
 async function WaitForPlayers(gameId) {
+  quitBtn.addEventListener("click", quitGame);
+
   let result = await axios.get(`/games/${gameId}/getCurrentPlayer`);
-  console.log(result.data);
   currentPlayer = {
     id: result.data.player?.userId,
     role: result.data.player?.role,
   };
 
   result = await axios.get(`/games/${gameId}/info`);
-  console.log("players array from db: ", result.data.players.length);
 
   // if there any new players:
   if (result.data.players.length > currentPlayersArr.length) {
@@ -29,6 +29,7 @@ async function WaitForPlayers(gameId) {
           .includes(player.id)
       ) {
         currentPlayersArr.push(player);
+        outputMsgContainer.textContent = `Player ${player.displayName} has joined.`;
         const newPlayerDiv = document.createElement("div");
         const pName = document.createElement("p");
         const pRole = document.createElement("p");
@@ -61,8 +62,6 @@ async function WaitForPlayers(gameId) {
     });
   }
 
-  console.log("current player array: ", currentPlayersArr.length);
-
   let gameState = result.data.gameState;
   if (gameState === "Waiting") {
     outputMsgContainer.textContent =
@@ -82,7 +81,7 @@ async function WaitForPlayers(gameId) {
   }
   if (gameState === "Game over") {
     console.log("game over");
-    restartGame();
+    initGame();
     return;
   }
 }
@@ -116,6 +115,8 @@ function installVoteVillagerClickEvent(playersDivs) {
 }
 
 async function nightMode() {
+  quitBtn.style.display = "none";
+
   outputMsgContainer.textContent =
     "Game start: NIGHT - Werevolves open your eyes and choose a villager to kill!";
   document.body.style.background = "#FFB6C1";
@@ -153,7 +154,7 @@ async function waitForNightToFinish() {
   //go to day mode
   if (game.gameState === "Game over") {
     alert("Game over");
-    restartGame();
+    initGame();
     return;
   }
   if (game.gameState === "Day") {
@@ -193,6 +194,8 @@ function installVoteWerewolfClickEvent(playersDivs) {
 }
 
 async function dayMode() {
+  quitBtn.style.display = "none";
+
   document.body.style.background = "Yellow";
 
   const result = await axios.get(`/games/${gameId}/players`);
@@ -230,8 +233,8 @@ async function waitForDayToFinish() {
 
   //go to day mode
   if (game.gameState === "Game over") {
-    alert("Game over");
-    restartGame();
+    // alert("Game over");
+    initGame();
     return;
   }
   if (game.gameState === "Night") {
@@ -240,40 +243,12 @@ async function waitForDayToFinish() {
   }
 }
 
-async function restartGame() {
-  const result = await axios.get(`/games/${gameId}/players`);
-  const players = result.data;
-  let alivePlayers = players.filter((p) => p.alive);
-  const winners = alivePlayers[0].role;
-  outputMsgContainer.textContent = `Congrats! The winner is ${winners}! Click the button to play again!`;
-  restartBtn.style.display = "block";
-  restartBtn.addEventListener("click", async () => {
-    try {
-      await axios.post(`/games/${gameId}/restartGame`);
-      const playersDiv = document.querySelectorAll(".player");
-      playersDiv.forEach((player) => {
-        player.style.background = "none";
-      });
-      outputMsgContainer.textContent =
-        "Wait for all players click restart button.";
-      restartBtn.style.display = "none";
-    } catch (error) {
-      console.log("Error message: ", error);
-    }
-  });
-  waitForAllPlayerRestartGame();
-}
-
-async function waitForAllPlayerRestartGame() {
-  const result = await axios.get(`/games/${gameId}/info`);
-  const game = result.data;
-  if (game.gameState === "Game over") {
-    setTimeout(waitForAllPlayerRestartGame, 2000);
-    return;
-  }
-  if (game.gameState === "Night") {
-    nightMode();
-    return;
+async function initGame() {
+  try {
+    await axios.post(`/games/${gameId}/init`);
+    window.location.href = `/gameHall`;
+  } catch (error) {
+    console.log("Error message: ", error);
   }
 }
 
@@ -285,8 +260,49 @@ async function quitGame() {
   leavedPlayerDiv.remove();
   outputMsgContainer.textContent = `${leavedPlayer.displayName} left this room.`;
   window.location.href = `/gameHall`; // Redirect to game hall for current user
-  updateGameRoomStatus();
 }
 
-quitBtn.addEventListener("click", quitGame);
+// async function restartGame() {
+//   document.body.style.background = "none";
+//   const result = await axios.get(`/games/${gameId}/players`);
+//   const players = result.data;
+//   let alivePlayers = players.filter((p) => p.alive);
+
+//   const winners = alivePlayers[0].role;
+//   outputMsgContainer.textContent = `Congrats! The winner is ${winners}! Click the button to play again!`;
+//   restartBtn.style.display = "block";
+//   quitBtn.style.display = "block";
+//   quitBtn.addEventListener("click", quitGame);
+
+//   restartBtn.addEventListener("click", async () => {
+//     try {
+//       await axios.post(`/games/${gameId}/restartGame`);
+//       const playersDiv = document.querySelectorAll(".player");
+//       playersDiv.forEach((player) => {
+//         player.style.background = "none";
+//       });
+//       outputMsgContainer.textContent =
+//         "Wait for all players click restart button.";
+//       restartBtn.style.display = "none";
+//     } catch (error) {
+//       console.log("Error message: ", error);
+//     }
+//   });
+//   waitForAllPlayerRestartGame();
+// }
+
+// async function waitForAllPlayerRestartGame() {
+//   const result = await axios.get(`/games/${gameId}/info`);
+//   const game = result.data;
+//   if (game.gameState === "Game over") {
+//     setTimeout(waitForAllPlayerRestartGame, 2000);
+//     return;
+//   }
+//   if (game.gameState === "Night") {
+//     nightMode();
+//     return;
+//   }
+// }
+
+// quitBtn.addEventListener("click", quitGame);
 WaitForPlayers(gameId);

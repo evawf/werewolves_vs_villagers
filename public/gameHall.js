@@ -8,7 +8,7 @@ let games;
 newGameBtn.addEventListener("click", async () => {
   const newGame = {
     name: document.getElementById("gameName").value,
-    game_state: "Waiting",
+    gameState: "Waiting",
   };
   const result = await axios.post("/newGame", newGame);
 });
@@ -18,7 +18,8 @@ async function showNewGameRooms() {
   const result = await axios.get("/getGamesInfo");
   gamesArr = result.data.games;
   // Check if new game room
-  outputMsgDiv.textContent = "Welcome! Please create a room to play!";
+  outputMsgDiv.textContent =
+    "Please choose a room to join the game or create your own game!";
   if (gamesArr.length > currentGamesArr.length) {
     gamesArr.forEach((game) => {
       if (

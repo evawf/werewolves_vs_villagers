@@ -59,11 +59,6 @@ class gamesRouter {
         isLoggedIn,
         this.controller.postVoteVillager.bind(this.controller)
       )
-      // .get(
-      //   "/games/:id/voteVillagerResult",
-      //   isLoggedIn,
-      //   this.controller.getVoteVillagerResult.bind(this.controller)
-      // )
       .get(
         "/games/:id/players",
         isLoggedIn,
@@ -74,14 +69,10 @@ class gamesRouter {
         isLoggedIn,
         this.controller.postVoteWerewolf.bind(this.controller)
       )
-      // .get(
-      //   "/games/:id/voteWerewolfResult",
-      //   this.controller.getVoteWerewolfResult.bind(this.controller)
-      // )
       .post(
-        "/games/:id/restartGame",
+        "/games/:id/init",
         isLoggedIn,
-        this.controller.restartGame.bind(this.controller)
+        this.controller.initGame.bind(this.controller)
       )
       .post(
         "/games/:id/quitGame",
