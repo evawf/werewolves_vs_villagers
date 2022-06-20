@@ -544,19 +544,28 @@ class Games extends Base {
       },
       include: [db.User],
     });
+
+    // Remove player from game
     await leavedPlayer.destroy();
+
+    const game = await this.model.findByPk(gameId);
     const activePlayers = await db.UserGame.findAll({
       where: {
         gameId: gameId,
       },
     });
-    if (activePlayers.length < 3) {
-      const game = await this.model.findByPk(gameId);
-      game.gameState = "Waiting";
-      await game.save();
+
+    console.log("leaved player", leavedPlayer);
+    console.log("game state", game.gameState);
+    console.log("active player num", activePlayers.length);
+    // Player left before game started: "Waiting"
+    if (game.gameState === "Waiting" && activePlayers.length < 4) {
+      res.json({ leavedPlayer });
     }
 
-    res.json({ leavedPlayer });
+    // Player left in the middle of a game: "Day" or "Night"
+
+    // Player left at the end of a game: "Game over"
   }
 }
 

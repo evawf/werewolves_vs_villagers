@@ -16,8 +16,8 @@ async function WaitForPlayers(gameId) {
   };
 
   result = await axios.get(`/games/${gameId}/info`);
+  console.log("players array from db: ", result.data.players.length);
 
-  console.log(result.data);
   // if there any new players:
   if (result.data.players.length > currentPlayersArr.length) {
     result.data.players.forEach((player) => {
@@ -44,8 +44,26 @@ async function WaitForPlayers(gameId) {
     });
   }
 
-  let gameState = result.data.gameState;
+  // If there is a player left the game;
+  if (result.data.players.length < currentPlayersArr.length) {
+    currentPlayersArr.forEach((player) => {
+      if (
+        !result.data.players
+          .map((p) => {
+            return p.id;
+          })
+          .includes(player.id)
+      ) {
+        currentPlayersArr.splice(currentPlayersArr.indexOf(player), 1);
+        playerDiv = document.getElementById(`${player.id}`);
+        playerDiv.remove();
+      }
+    });
+  }
 
+  console.log("current player array: ", currentPlayersArr.length);
+
+  let gameState = result.data.gameState;
   if (gameState === "Waiting") {
     outputMsgContainer.textContent =
       "Please wait for more players to join the room.";
@@ -54,8 +72,6 @@ async function WaitForPlayers(gameId) {
   }
 
   if (gameState === "Night") {
-    outputMsgContainer.textContent =
-      "Game start: NIGHT - Werevolves open your eyes and choose a villager to kill!";
     nightMode();
     return;
   }
@@ -65,11 +81,8 @@ async function WaitForPlayers(gameId) {
     return;
   }
   if (gameState === "Game over") {
-    //  console.log("Game over");
-    // If game over, players can restart the game or leave the game
-    // alert("Game over");
+    console.log("game over");
     restartGame();
-    //restartGame();
     return;
   }
 }
@@ -118,27 +131,14 @@ async function nightMode() {
     }
   }
 
-  // const getActivePlayers = await axios.get(`/games/${gameId}/activePlayers`);
-  // const activePlayersArr = getActivePlayers.data.playersArr;
-  // const playersDiv = document.querySelectorAll(".player");
-  // for (let i = 0; i < currentPlayer.length; i += 1) {
-  //   if (!currentPlayer[i].alive) {
-  //     playersDiv[i].style.background = "gray";
-  //     currentPlayer[i].role = activePlayersArr[i].role;
-  //     outputMsgContainer.textContent = `Poor ${currentPlayer[i].role} ${playersDiv[i].textContent} got killed`;
-  //   }
-  // }
-
   // Werewolf select a villager
   if (currentPlayer.role === "Werewolf") {
     const activePlayersDiv = [];
     alive.forEach((playerId) => {
       activePlayersDiv.push(document.getElementById(`${playerId}`));
     });
-
     installVoteVillagerClickEvent(activePlayersDiv);
   }
-
   waitForNightToFinish();
 }
 
@@ -279,10 +279,14 @@ async function waitForAllPlayerRestartGame() {
 
 async function quitGame() {
   const result = await axios.post(`/games/${gameId}/quitGame`);
-  const leavedPlayerName = result.data.leavedPlayer.user.displayName;
-  outputMsgContainer.textContent = `${leavedPlayerName} left this room.`;
-  window.location.href = `/gameHall`;
+  const leavedPlayer = result.data.leavedPlayer.user;
+  console.log(leavedPlayer);
+  const leavedPlayerDiv = document.getElementById(`${leavedPlayer.id}`);
+  leavedPlayerDiv.remove();
+  outputMsgContainer.textContent = `${leavedPlayer.displayName} left this room.`;
+  window.location.href = `/gameHall`; // Redirect to game hall for current user
+  updateGameRoomStatus();
 }
-quitBtn.addEventListener("click", quitGame);
 
+quitBtn.addEventListener("click", quitGame);
 WaitForPlayers(gameId);
