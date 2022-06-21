@@ -1,29 +1,83 @@
 <%- include('./partials/header') %>
-
 <!-- user login -->
-<div id="loginDiv">
-  <input type="email" id="email_login" value="gigi@gmail.com" />
-  <input type="password" id="password_login" value="123" />
-  <button id="loginBtn">LOG IN</button>
-  <button id="signupBtn">SIGN UP</button>
+<div
+  id="loginDiv"
+  class="col-8 p-2 rounded border border-light needs-validation"
+>
+  <div class="mb-3">
+    <input
+      type="email"
+      id="email_login"
+      value="gigi@gmail.com"
+      pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+      class="form-control"
+      required
+    />
+  </div>
+  <div class="mb-3">
+    <input
+      type="password"
+      id="password_login"
+      value="123"
+      pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+      class="form-control"
+      required
+    />
+  </div>
+  <div class="mb-3 d-flex flex-column align-items-center">
+    <button id="loginBtn" class="btn btn-primary form-control">LOG IN</button>
+  </div>
+  <button id="signupBtn" class="btn btn-info form-control">SIGN UP</button>
 </div>
+
 <!-- user sign up  -->
-<div id="signupDiv" style="display: none">
-  <input
-    type="text"
-    name="display_name"
-    id="display_name"
-    placeholder="Display Name"
-  />
-  <input type="email" name="email" id="email_signup" placeholder="Email" />
-  <input
-    type="password"
-    name="password"
-    id="password_signup"
-    placeholder="Password"
-  />
-  <button id="submitBtn">Submit</button>
+<div
+  id="signupDiv"
+  style="display: none"
+  class="col-8 p-2 rounded border border-light needs-validation"
+>
+  <div class="mb-3">
+    <input
+      type="text"
+      name="display_name"
+      id="display_name"
+      placeholder="Display Name*"
+      class="form-control"
+      required
+    />
+  </div>
+  <div class="mb-3">
+    <input
+      type="email"
+      name="email"
+      id="email_signup"
+      placeholder="Email*"
+      class="form-control"
+      pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+    />
+  </div>
+  <div class="mb-3">
+    <input
+      type="password"
+      name="password"
+      id="password_signup"
+      placeholder="Password*"
+      class="form-control"
+      required
+    />
+  </div>
+  <div class="mb-3 d-flex flex-column align-items-center">
+    <button id="submitBtn" class="btn btn-info form-control">Submit</button>
+  </div>
 </div>
-<a id="gameHallBtn" style="display: none" href="/gameHall">Enter GameHall</a>
+<div class="mb-3 d-flex flex-column align-items-center">
+  <a
+    id="gameHallBtn"
+    style="display: none"
+    href="/gameHall"
+    class="btn btn-info form-control"
+    >Enter GameHall</a
+  >
+</div>
 
 <%- include('./partials/footer') %>
