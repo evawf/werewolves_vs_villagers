@@ -80,8 +80,7 @@ async function WaitForPlayers(gameId) {
     return;
   }
   if (gameState === "Game over") {
-    console.log("game over");
-    initGame();
+    showWinnerInfo();
     return;
   }
 }
@@ -153,8 +152,7 @@ async function waitForNightToFinish() {
 
   //go to day mode
   if (game.gameState === "Game over") {
-    alert("Game over");
-    initGame();
+    showWinnerInfo();
     return;
   }
   if (game.gameState === "Day") {
@@ -195,9 +193,7 @@ function installVoteWerewolfClickEvent(playersDivs) {
 
 async function dayMode() {
   quitBtn.style.display = "none";
-
   document.body.style.background = "Yellow";
-
   const result = await axios.get(`/games/${gameId}/players`);
   const alive = result.data.filter((p) => p.alive).map((p) => p.userId);
   const playersDiv = document.querySelectorAll(".player");
@@ -205,7 +201,7 @@ async function dayMode() {
   for (let i = 0; i < currentPlayersArr.length; i += 1) {
     if (!alive.includes(currentPlayersArr[i].id)) {
       playersDiv[i].style.background = "gray";
-      outputMsgContainer.textContent = `Poor villager ${playersDiv[i].textContent} got killed! Attention! All villagers!! We must find the bad werewolf and put an end to it.`;
+      outputMsgContainer.textContent = `Poor villager ${playersDiv[i].textContent} got killed!`;
     }
   }
 
@@ -231,10 +227,8 @@ async function waitForDayToFinish() {
     return;
   }
 
-  //go to day mode
   if (game.gameState === "Game over") {
-    // alert("Game over");
-    initGame();
+    showWinnerInfo();
     return;
   }
   if (game.gameState === "Night") {
@@ -243,13 +237,21 @@ async function waitForDayToFinish() {
   }
 }
 
+async function showWinnerInfo() {
+  document.body.style.background = "none";
+  const result = await axios.get(`/games/${gameId}/players`);
+  const players = result.data;
+  let alivePlayers = players.filter((p) => p.alive);
+  const winners = alivePlayers[0].role;
+  console.log(winners);
+  outputMsgContainer.textContent = `Congrats! The winner is ${winners}! Click the button to play again!`;
+  alert(`Congrats!  The winner is ${winners}`);
+  initGame();
+}
+
 async function initGame() {
-  try {
-    await axios.post(`/games/${gameId}/init`);
-    window.location.href = `/gameHall`;
-  } catch (error) {
-    console.log("Error message: ", error);
-  }
+  await axios.post(`/games/${gameId}/init`);
+  window.location.href = `/gameHall`;
 }
 
 async function quitGame() {
@@ -262,47 +264,4 @@ async function quitGame() {
   window.location.href = `/gameHall`; // Redirect to game hall for current user
 }
 
-// async function restartGame() {
-//   document.body.style.background = "none";
-//   const result = await axios.get(`/games/${gameId}/players`);
-//   const players = result.data;
-//   let alivePlayers = players.filter((p) => p.alive);
-
-//   const winners = alivePlayers[0].role;
-//   outputMsgContainer.textContent = `Congrats! The winner is ${winners}! Click the button to play again!`;
-//   restartBtn.style.display = "block";
-//   quitBtn.style.display = "block";
-//   quitBtn.addEventListener("click", quitGame);
-
-//   restartBtn.addEventListener("click", async () => {
-//     try {
-//       await axios.post(`/games/${gameId}/restartGame`);
-//       const playersDiv = document.querySelectorAll(".player");
-//       playersDiv.forEach((player) => {
-//         player.style.background = "none";
-//       });
-//       outputMsgContainer.textContent =
-//         "Wait for all players click restart button.";
-//       restartBtn.style.display = "none";
-//     } catch (error) {
-//       console.log("Error message: ", error);
-//     }
-//   });
-//   waitForAllPlayerRestartGame();
-// }
-
-// async function waitForAllPlayerRestartGame() {
-//   const result = await axios.get(`/games/${gameId}/info`);
-//   const game = result.data;
-//   if (game.gameState === "Game over") {
-//     setTimeout(waitForAllPlayerRestartGame, 2000);
-//     return;
-//   }
-//   if (game.gameState === "Night") {
-//     nightMode();
-//     return;
-//   }
-// }
-
-// quitBtn.addEventListener("click", quitGame);
 WaitForPlayers(gameId);

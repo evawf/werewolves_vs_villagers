@@ -391,6 +391,9 @@ class Games extends Base {
       await player.destroy();
     });
 
+    game.gameState = "Waiting";
+    await game.save();
+
     res.send("Game over!");
   }
 
