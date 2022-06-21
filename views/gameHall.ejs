@@ -1,22 +1,50 @@
 <%- include('./partials/header') %>
-<div>
-  <h1>Hi <%= currentUser.displayName %>! Welcome to Game Hall!</h1>
-  <input type="text" name="name" id="gameName" placeholder="Game Name" />
-  <button id="newGameBtn">New Game Room</button>
-  <br />
-  <a href="/logout">LOG OUT</a>
+<div
+  class="container-fluid d-flex col-md-8 col-lg-3 flex-column overflow-auto h-100 justify-content-start my-3 mx-5"
+>
+  <!-- Log out  -->
+  <div class="d-flex flex-column algin-content-center mt-0 my-3">
+    <a href="/logout" class="btn btn-primary">LOG OUT</a>
+  </div>
+
+  <!-- Message Div  -->
+  <div class="d-flex flex-column algin-content-center mt-0 my-2">
+    <h3>Hey <%= currentUser.displayName %>, welcome to Game Hall!</h3>
+    <div id="outputMsg"></div>
+  </div>
+
+  <!-- Create new game room  -->
+  <div class="mb-3 d-flex flex-column justify-content-center text-center my-2">
+    <button id="createRoomBtn" class="btn btn-success">New Game Room</button>
+  </div>
+  <!-- Input new room name  -->
+  <div id="createRoom" class="border rounded border-light text-center p-2">
+    <div>
+      <input
+        type="text"
+        name="name"
+        id="gameName"
+        placeholder="Game Name"
+        class="form-control"
+      />
+    </div>
+    <div class="mt-2">
+      <button id="cancelBtn" class="btn btn-warning mx-1" style="width: 105px">
+        Cancel
+      </button>
+      <button id="newGameBtn" class="btn btn-success mx-1" style="width: 105px">
+        New Room
+      </button>
+    </div>
+  </div>
+
+  <!-- Game room list  -->
+  <div
+    id="gameRoomsContainer"
+    class="mb-3 d-flex flex-column justify-content-center text-center"
+  >
+    <h4>Game Rooms</h4>
+  </div>
 </div>
-<div id="outputMsg"></div>
 
-<div id="gameRoomsContainer">
-  <p>Game Rooms</p>
-
-</div>
-
-
-   
-    <script src="https://cdn.jsdelivr.net/npm/js-loading-overlay@1.1.0/dist/js-loading-overlay.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="gameHall.js"></script>
-  </body>
-</html>
+<%- include('./partials/footer') %>

@@ -1,8 +1,24 @@
 const newGameBtn = document.getElementById("newGameBtn");
 const gameRoomsContainer = document.getElementById("gameRoomsContainer");
 const outputMsgDiv = document.getElementById("outputMsg");
+const createRoomDiv = document.getElementById("createRoom");
+const createRoomBtn = document.getElementById("createRoomBtn");
+const cancelBtn = document.getElementById("cancelBtn");
+createRoom.style.display = "none";
 let currentGamesArr = [];
 let games;
+
+// Cancel new room creation
+cancelBtn.addEventListener("click", () => {
+  createRoom.style.display = "none";
+  createRoomBtn.style.display = "block";
+});
+
+// Show room create div
+createRoomBtn.addEventListener("click", () => {
+  createRoom.style.display = "block";
+  createRoomBtn.style.display = "none";
+});
 
 // Create Game game
 newGameBtn.addEventListener("click", async () => {
@@ -11,6 +27,8 @@ newGameBtn.addEventListener("click", async () => {
     gameState: "Waiting",
   };
   const result = await axios.post("/newGame", newGame);
+  createRoom.style.display = "none";
+  createRoomBtn.style.display = "block";
 });
 
 // Display new game room
@@ -41,6 +59,7 @@ async function showNewGameRooms() {
         gameRoomsContainer.append(newGameDiv);
       }
     });
+
     games = document.querySelectorAll(".game");
     games.forEach((game) => {
       game.addEventListener("click", async (e) => {
