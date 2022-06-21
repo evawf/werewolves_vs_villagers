@@ -198,12 +198,9 @@ async function dayMode() {
   const result = await axios.get(`/games/${gameId}/players`);
   const alive = result.data.filter((p) => p.alive).map((p) => p.userId);
   const playersDiv = document.querySelectorAll(".player");
-
   for (let i = 0; i < currentPlayersArr.length; i += 1) {
     if (!alive.includes(currentPlayersArr[i].id)) {
       playersDiv[i].style.background = "gray";
-      console.log(currentPlayer.id);
-      console.log(currentPlayersArr[i].id);
       if (currentPlayer.id !== currentPlayersArr[i].id) {
         outputMsgContainer.textContent = `Poor villager ${playersDiv[i].textContent} got killed!`;
       } else {
@@ -222,7 +219,6 @@ async function dayMode() {
   if (alive.includes(currentPlayer.id)) {
     installVoteWerewolfClickEvent(activePlayersDiv);
   }
-
   waitForDayToFinish();
 }
 
@@ -268,7 +264,7 @@ async function quitGame() {
   const leavedPlayerDiv = document.getElementById(`${leavedPlayer.id}`);
   leavedPlayerDiv.remove();
   outputMsgContainer.textContent = `${leavedPlayer.displayName} left this room.`;
-  window.location.href = `/gameHall`; // Redirect to game hall for current user
+  window.location.href = `/gameHall`; // Redirect to game hall
 }
 
 WaitForPlayers(gameId);
