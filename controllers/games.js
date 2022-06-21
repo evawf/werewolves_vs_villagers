@@ -38,14 +38,20 @@ class Games extends Base {
   }
 
   async getGamesInfo(req, res) {
-    const games = await this.model.findAll();
+    const games = await this.model.findAll({
+      include: [db.UserGame],
+    });
     res.json({ games });
   }
 
   async addNewGame(req, res) {
     const newGame = req.body;
-    const result = await this.model.create(newGame);
-    res.json(result);
+    try {
+      const result = await this.model.create(newGame);
+      res.json(result);
+    } catch (error) {
+      res.send("Error: ", error);
+    }
   }
 
   getCurrentUser(req, res) {

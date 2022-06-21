@@ -22,19 +22,25 @@ createRoomBtn.addEventListener("click", () => {
 
 // Create Game game
 newGameBtn.addEventListener("click", async () => {
-  const newGame = {
-    name: document.getElementById("gameName").value,
-    gameState: "Waiting",
-  };
-  const result = await axios.post("/newGame", newGame);
-  createRoom.style.display = "none";
-  createRoomBtn.style.display = "block";
+  const gameName = document.getElementById("gameName").value;
+  if (gameName.trim("")) {
+    const newGame = {
+      name: document.getElementById("gameName").value,
+      gameState: "Waiting",
+    };
+    const result = await axios.post("/newGame", newGame);
+    createRoom.style.display = "none";
+    createRoomBtn.style.display = "block";
+  } else {
+    alert("Game name is empty!");
+  }
 });
 
 // Display new game room
 async function showNewGameRooms() {
   const result = await axios.get("/getGamesInfo");
   gamesArr = result.data.games;
+  console.log(gamesArr);
   // Check if new game room
   outputMsgDiv.textContent =
     "Please choose a room to join the game or create your own game!";
@@ -48,12 +54,13 @@ async function showNewGameRooms() {
           .includes(game.id)
       ) {
         currentGamesArr.push(game);
+        console.log(game.userGames.length);
         const newGameDiv = document.createElement("div");
         newGameDiv.className = "game";
         newGameDiv.id = `${game.id}`;
         const gameLink = document.createElement("span");
         gameLink.className = "gameName";
-        gameLink.textContent = game.name;
+        gameLink.textContent = `${game.name} | ${game.userGames.length}/3`; // add number of players here
         gameLink.href = `/games/${game.id}`;
         newGameDiv.append(gameLink);
         gameRoomsContainer.append(newGameDiv);
@@ -71,7 +78,7 @@ async function showNewGameRooms() {
       });
     });
   }
-  setTimeout(showNewGameRooms.bind(), 2000);
+  // setTimeout(showNewGameRooms.bind(), 2000);
 }
 
 showNewGameRooms();

@@ -56,12 +56,23 @@ html {
 }
 
 .player {
-  /* width: 50px;
-  height: 50px;*/
-  width: auto;
+  width: 110px;
+  height: 110px;
+  border-radius: 20px;
   margin: 10px;
   padding: 10px;
   border: solid 1px black;
+  text-align: center;
+  background-color: rgb(54, 39, 62);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+p {
+  margin: 0;
 }
 
 .game {
@@ -76,7 +87,6 @@ html {
 
 @media screen and (min-width: 450px) {
   body {
-    max-width: 414px;
-    max-height: 896px;
+    display: none;
   }
 }

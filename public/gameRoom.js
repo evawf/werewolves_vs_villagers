@@ -1,9 +1,9 @@
 const playersContainer = document.getElementById("playersContainer");
 const outputMsgContainer = document.getElementById("outputMsg");
 const gameId = document.getElementById("gameId").value;
-const restartBtn = document.getElementById("restartBtn");
+// const restartBtn = document.getElementById("restartBtn");
 const quitBtn = document.getElementById("quitBtn");
-restartBtn.style.display = "none";
+// restartBtn.style.display = "none";
 let currentPlayersArr = [];
 let currentPlayer;
 
