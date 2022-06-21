@@ -40,7 +40,6 @@ newGameBtn.addEventListener("click", async () => {
 async function showNewGameRooms() {
   const result = await axios.get("/getGamesInfo");
   gamesArr = result.data.games;
-  console.log(gamesArr);
   // Check if new game room
   outputMsgDiv.textContent =
     "Please choose a room to join the game or create your own game!";
@@ -54,7 +53,6 @@ async function showNewGameRooms() {
           .includes(game.id)
       ) {
         currentGamesArr.push(game);
-        console.log(game.userGames.length);
         const newGameDiv = document.createElement("div");
         newGameDiv.className = "game";
         newGameDiv.id = `${game.id}`;

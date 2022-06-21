@@ -85,6 +85,10 @@ p {
   color: white;
 }
 
+.leaveGameDiv {
+  width: 390px !important;
+}
+
 @media screen and (min-width: 450px) {
   body {
     display: none;

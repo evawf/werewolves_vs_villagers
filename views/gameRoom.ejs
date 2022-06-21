@@ -38,21 +38,24 @@
         value="<%= game.id %>"
         style="display: hidden"
       />
-
       <div class="d-flex flex-column text-center mt-0 my-2">
         <h4>Game Room: <%= game.name %></h4>
         <h5><%= currentUser.displayName %>, welcome!</h5>
       </div>
+      <hr />
       <!-- Message board  -->
-      <div class="d-flex flex-column algin-content-center mt-0 my-3">
+      <div class="d-flex flex-column algin-content-center m-0 my-3">
         <div id="outputMsg"></div>
       </div>
-
+      <hr />
+      <!-- Players container  -->
+      <div id="playersContainer" class="container-fluid d-flex flex-row"></div>
       <!-- <button id="restartBtn">Play again</button> -->
-      <div class="d-flex flex-column algin-content-center mt-0 my-3">
+      <div
+        class="d-flex flex-column algin-content-center mt-0 my-3 fixed-bottom"
+      >
         <button id="quitBtn" class="btn btn-warning">Leave game</button>
       </div>
-      <div id="playersContainer" class="container-fluid d-flex flex-row"></div>
     </div>
 
     <script

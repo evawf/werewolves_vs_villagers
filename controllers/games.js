@@ -417,12 +417,12 @@ class Games extends Base {
     // Remove player from game
     await leavedPlayer.destroy();
 
-    const game = await this.model.findByPk(gameId);
-    const activePlayers = await db.UserGame.findAll({
-      where: {
-        gameId: gameId,
-      },
-    });
+    // const game = await this.model.findByPk(gameId);
+    // const activePlayers = await db.UserGame.findAll({
+    //   where: {
+    //     gameId: gameId,
+    //   },
+    // });
 
     res.json({ leavedPlayer });
   }

@@ -124,12 +124,12 @@ async function nightMode() {
   const alive = result.data.filter((p) => p.alive).map((p) => p.userId);
   const playersDiv = document.querySelectorAll(".player");
 
-  for (let i = 0; i < currentPlayersArr.length; i += 1) {
-    if (!alive.includes(currentPlayersArr[i].id)) {
-      playersDiv[i].style.background = "gray";
-      outputMsgContainer.textContent = `Poor villager ${playersDiv[i].textContent} got killed! Attention! All villagers!! We must find the bad werewolf and put an end to it.`;
-    }
-  }
+  // for (let i = 0; i < currentPlayersArr.length; i += 1) {
+  //   if (!alive.includes(currentPlayersArr[i].id)) {
+  //     playersDiv[i].style.background = "gray";
+  //     outputMsgContainer.textContent = `Poor villager ${playersDiv[i].textContent} got killed! Attention! All villagers!! We must find the bad werewolf and put an end to it.`;
+  //   }
+  // }
 
   // Werewolf select a villager
   if (currentPlayer.role === "Werewolf") {
@@ -185,7 +185,8 @@ function installVoteWerewolfClickEvent(playersDivs) {
         const postVote = await axios.post(`/games/${gameId}/voteWereWolf`, {
           vote,
         });
-        return vote;
+        console.log(postVote.data);
+        return;
       });
     }
   });
@@ -201,7 +202,13 @@ async function dayMode() {
   for (let i = 0; i < currentPlayersArr.length; i += 1) {
     if (!alive.includes(currentPlayersArr[i].id)) {
       playersDiv[i].style.background = "gray";
-      outputMsgContainer.textContent = `Poor villager ${playersDiv[i].textContent} got killed!`;
+      console.log(currentPlayer.id);
+      console.log(currentPlayersArr[i].id);
+      if (currentPlayer.id !== currentPlayersArr[i].id) {
+        outputMsgContainer.textContent = `Poor villager ${playersDiv[i].textContent} got killed!`;
+      } else {
+        outputMsgContainer.textContent = `Sorry, you got killed by werewolf!`;
+      }
     }
   }
 
