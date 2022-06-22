@@ -1,5 +1,6 @@
 const Base = require("./base");
 const db = require("../models/index");
+// const { NOW } = require("sequelize");
 
 // Generate roles array
 const getRoles = () => {
@@ -14,7 +15,7 @@ const getRoles = () => {
   //   rolesArr.push(roles[1]);
   // }
   // let roles = ["Werewolf", "Villager", "Werewolf", "Villager", "Villager"];
-  let roles = ["Werewolf", "Villager", "Villager"];
+  let roles = ["Werewolf", "Villager", "Villager"]; // Test mode: 3 players
   // Shuffle roles
   for (let i = roles.length - 1; i > 0; i -= 1) {
     let idx = Math.floor(Math.random() * i);
@@ -76,6 +77,14 @@ class Games extends Base {
       ],
     });
 
+    // if state == Night or state == Day and game.gameStateChangedAt is more that 2 mintues ago
+    // if (game.gameState === "Night" || game.gameState === "Day") {
+    //   if (NOW() - game.gamestatechangedAt > 5000) {
+    //     console.log("waiting time more than 5s");
+    //   }
+    // }
+    // change mode to gameOver
+
     const gameInfo = {
       gameId: game.id,
       gameState: game.gameState,
@@ -99,6 +108,7 @@ class Games extends Base {
     const gameId = req.body.gameId;
     const currentUser = res.locals.currentUser;
     const game = await this.model.findByPk(gameId);
+    const players = await game.getUserGames();
     if (game.gameState !== "Waiting") {
       return res.send("Game started");
     }
@@ -131,7 +141,8 @@ class Games extends Base {
       }
     });
 
-    if (roles.length > 0) {
+    // For 6 players this condition change to < 6
+    if (players.length < 3) {
       const user = await db.User.findByPk(currentUser.id);
       await game.addUser(user, {
         through: {
@@ -146,8 +157,11 @@ class Games extends Base {
         gameId: gameId,
       },
     });
+    // For 6 players this condition change to ' === 6 '
+    console.log("num of players: ", activePlayers.length);
     if (activePlayers.length === 3) {
       game.gameState = "Night";
+      // game.gamestatechangedAt = NOW();
       await game.save();
     }
     res.send("Joined!");
@@ -192,7 +206,6 @@ class Games extends Base {
     await user.save();
 
     // check if every werewolves have voted
-
     const werewolves = await game.getUserGames({
       where: {
         alive: true,
@@ -264,6 +277,7 @@ class Games extends Base {
           await player.save();
         });
         game.gameState = "Day";
+        // game.gamestatechangedAt = NOW();
         await game.save();
       }
     }
@@ -381,6 +395,7 @@ class Games extends Base {
           await player.save();
         });
         game.gameState = "Night";
+        // game.gamestatechangedAt = NOW();
         await game.save();
       }
     }

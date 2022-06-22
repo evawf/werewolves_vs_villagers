@@ -75,6 +75,11 @@ p {
   margin: 0;
 }
 
+#outputMsg {
+  height: 100px;
+  width: auto;
+}
+
 .game {
   width: auto;
   margin: 10px 0 10px 0;

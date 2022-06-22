@@ -58,8 +58,13 @@ async function showNewGameRooms() {
         newGameDiv.id = `${game.id}`;
         const gameLink = document.createElement("span");
         gameLink.className = "gameName";
-        gameLink.textContent = `${game.name} | ${game.userGames.length}/3`; // add number of players here
-        gameLink.href = `/games/${game.id}`;
+        if (game.userGames.length < 3) {
+          gameLink.textContent = `${game.name} | ${game.userGames.length}/3`; // add number of players here
+          gameLink.href = `/games/${game.id}`;
+        } else {
+          gameLink.textContent = `${game.name} | FULL`;
+          gameLink.href = "none";
+        }
         newGameDiv.append(gameLink);
         gameRoomsContainer.append(newGameDiv);
       }

@@ -1,54 +1,96 @@
-<%- include('./partials/header') %>
-<div
-  class="container-fluid d-flex col-md-8 col-lg-3 flex-column overflow-auto h-100 justify-content-start my-3 mx-5"
->
-  <!-- Log out  -->
-  <div class="d-flex flex-column algin-content-center mt-0 my-3">
-    <a href="/logout" class="btn btn-primary">LOG OUT</a>
-  </div>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Message Div  -->
-  <div class="d-flex flex-column algin-content-center mt-0 my-2">
-    <h3>Hey <%= currentUser.displayName %>, welcome to Game Hall!</h3>
-    <div id="outputMsg"></div>
-  </div>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.2/font/bootstrap-icons.css"
+    />
 
-  <!-- Create new game room  -->
-  <div class="mb-3 d-flex flex-column justify-content-center text-center mb-3">
-    <button id="createRoomBtn" class="btn btn-success">New Game Room</button>
-  </div>
-  <!-- Input new room name  -->
-  <div
-    id="createRoom"
-    class="border rounded border-light text-center p-2 mt-0 mb-2"
-  >
-    <div>
-      <input
-        type="text"
-        name="name"
-        id="gameName"
-        placeholder="Game Name*"
-        class="form-control"
-        required
-      />
+    <link rel="stylesheet" href="/style.css" />
+    <title>Game Room</title>
+  </head>
+  <body>
+    <div
+      class="container-fluid d-flex col-md-8 col-lg-3 flex-column overflow-auto h-100 justify-content-start my-3 mx-5"
+    >
+      <!-- Log out  -->
+      <div class="d-flex flex-column algin-content-center mt-0 my-3">
+        <a href="/logout" class="btn btn-primary">LOG OUT</a>
+      </div>
+
+      <!-- Message Div  -->
+      <div class="d-flex flex-column algin-content-center mt-0 my-2">
+        <h3>Hey <%= currentUser.displayName %>, welcome to Game Hall!</h3>
+        <div id="outputMsg"></div>
+      </div>
+
+      <!-- Create new game room  -->
+      <div
+        class="mb-3 d-flex flex-column justify-content-center text-center mb-3"
+      >
+        <button id="createRoomBtn" class="btn btn-success">
+          New Game Room
+        </button>
+      </div>
+      <!-- Input new room name  -->
+      <div
+        id="createRoom"
+        class="border rounded border-light text-center p-2 mt-0 mb-2"
+      >
+        <div>
+          <input
+            type="text"
+            name="name"
+            id="gameName"
+            placeholder="Game Name*"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="mt-2">
+          <button
+            id="cancelBtn"
+            class="btn btn-warning mx-1"
+            style="width: 105px"
+          >
+            Cancel
+          </button>
+          <button
+            id="newGameBtn"
+            class="btn btn-success mx-1"
+            style="width: 105px"
+          >
+            New Room
+          </button>
+        </div>
+      </div>
+      <hr />
+      <!-- Game room list  -->
+      <div
+        id="gameRoomsContainer"
+        class="mb-3 d-flex flex-column justify-content-center text-center mt-1"
+      >
+        <h4>Game Rooms</h4>
+      </div>
     </div>
-    <div class="mt-2">
-      <button id="cancelBtn" class="btn btn-warning mx-1" style="width: 105px">
-        Cancel
-      </button>
-      <button id="newGameBtn" class="btn btn-success mx-1" style="width: 105px">
-        New Room
-      </button>
-    </div>
-  </div>
-  <hr />
-  <!-- Game room list  -->
-  <div
-    id="gameRoomsContainer"
-    class="mb-3 d-flex flex-column justify-content-center text-center mt-1"
-  >
-    <h4>Game Rooms</h4>
-  </div>
-</div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
 
-<%- include('./partials/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/js-loading-overlay@1.1.0/dist/js-loading-overlay.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/gameHall.js"></script>
+  </body>
+</html>

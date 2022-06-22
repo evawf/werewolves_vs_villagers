@@ -18,6 +18,7 @@ async function WaitForPlayers(gameId) {
 
   result = await axios.get(`/games/${gameId}/info`);
 
+  console.log(result.data.players.length);
   // if there any new players:
   if (result.data.players.length > currentPlayersArr.length) {
     result.data.players.forEach((player) => {
@@ -29,7 +30,15 @@ async function WaitForPlayers(gameId) {
           .includes(player.id)
       ) {
         currentPlayersArr.push(player);
-        outputMsgContainer.textContent = `Player ${player.displayName} has joined.`;
+        const pMsg = document.createElement("p");
+        pMsg.textContent = `Player ${player.displayName} has joined.`;
+        outputMsgContainer.append(pMsg);
+
+        if (result.data.players.length < 3) {
+          const pWait = document.createElement("p");
+          pWait.textContent = "Please wait for more players to join the room.";
+          outputMsgContainer.append(pWait);
+        }
         const newPlayerDiv = document.createElement("div");
         const pName = document.createElement("p");
         const pRole = document.createElement("p");
@@ -64,8 +73,6 @@ async function WaitForPlayers(gameId) {
 
   let gameState = result.data.gameState;
   if (gameState === "Waiting") {
-    outputMsgContainer.textContent =
-      "Please wait for more players to join the room.";
     setTimeout(WaitForPlayers.bind(null, gameId), 2000);
     return;
   }
@@ -115,21 +122,14 @@ function installVoteVillagerClickEvent(playersDivs) {
 
 async function nightMode() {
   quitBtn.style.display = "none";
+  const p = document.createElement("p");
+  p.textContent = "Game start: NIGHT - Werevolve pick a villager to kill!";
+  outputMsgContainer.append(p);
 
-  outputMsgContainer.textContent =
-    "Game start: NIGHT - Werevolves open your eyes and choose a villager to kill!";
-  document.body.style.background = "#FFB6C1";
-
+  document.body.style.background = "#4b5875";
   const result = await axios.get(`/games/${gameId}/players`);
   const alive = result.data.filter((p) => p.alive).map((p) => p.userId);
   const playersDiv = document.querySelectorAll(".player");
-
-  // for (let i = 0; i < currentPlayersArr.length; i += 1) {
-  //   if (!alive.includes(currentPlayersArr[i].id)) {
-  //     playersDiv[i].style.background = "gray";
-  //     outputMsgContainer.textContent = `Poor villager ${playersDiv[i].textContent} got killed! Attention! All villagers!! We must find the bad werewolf and put an end to it.`;
-  //   }
-  // }
 
   // Werewolf select a villager
   if (currentPlayer.role === "Werewolf") {
@@ -194,7 +194,7 @@ function installVoteWerewolfClickEvent(playersDivs) {
 
 async function dayMode() {
   quitBtn.style.display = "none";
-  document.body.style.background = "Yellow";
+  document.body.style.background = "#fcd9b6";
   const result = await axios.get(`/games/${gameId}/players`);
   const alive = result.data.filter((p) => p.alive).map((p) => p.userId);
   const playersDiv = document.querySelectorAll(".player");
@@ -202,9 +202,18 @@ async function dayMode() {
     if (!alive.includes(currentPlayersArr[i].id)) {
       playersDiv[i].style.background = "gray";
       if (currentPlayer.id !== currentPlayersArr[i].id) {
-        outputMsgContainer.textContent = `Poor villager ${playersDiv[i].textContent} got killed!`;
+        const p1 = document.createElement("p");
+        const p2 = document.createElement("p");
+
+        p1.textContent = `Day: Poor villager ${playersDiv[i].textContent} got killed!`;
+        p2.textContent = "Let's find out who's the bad werewolf!";
+
+        outputMsgContainer.append(p1);
+        outputMsgContainer.append(p2);
       } else {
-        outputMsgContainer.textContent = `Sorry, you got killed by werewolf!`;
+        const p3 = document.createElement("p");
+        p3.textContent += `Sorry, you got killed by werewolf!`;
+        outputMsgContainer.append(p3);
       }
     }
   }
@@ -243,12 +252,15 @@ async function waitForDayToFinish() {
 async function showWinnerInfo() {
   document.body.style.background = "none";
   const result = await axios.get(`/games/${gameId}/players`);
+  console.log(result.data);
   const players = result.data;
   let alivePlayers = players.filter((p) => p.alive);
   const winners = alivePlayers[0].role;
-  console.log(winners);
-  outputMsgContainer.textContent = `Congrats! The winner is ${winners}! Click the button to play again!`;
-  alert(`Congrats!  The winner is ${winners}`);
+  console.log(players);
+  const pWinner = document.createElement("p");
+  pWinner.textContent = `Congrats! The winner is ${winners}! Click the button to play again!`;
+  outputMsgContainer.append(pWinner);
+  alert(`Congrats! The winner is ${winners}.`);
   initGame();
 }
 
