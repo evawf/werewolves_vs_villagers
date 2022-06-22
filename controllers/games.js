@@ -1,6 +1,6 @@
 const Base = require("./base");
 const db = require("../models/index");
-// const { NOW } = require("sequelize");
+// const { Sequelize } = require("sequelize");
 
 // Generate roles array
 const getRoles = () => {
@@ -77,13 +77,15 @@ class Games extends Base {
       ],
     });
 
-    // if state == Night or state == Day and game.gameStateChangedAt is more that 2 mintues ago
-    // if (game.gameState === "Night" || game.gameState === "Day") {
-    //   if (NOW() - game.gamestatechangedAt > 5000) {
-    //     console.log("waiting time more than 5s");
-    //   }
-    // }
-    // change mode to gameOver
+    // if state == Night or state == Day and player is not active for more that 2 mintues then game over
+    if (game.gameState === "Night" || game.gameState === "Day") {
+      if (new Date().getMinutes() - game.gamestatechangedAt.getMinutes() > 2) {
+        game.gameState = "Game over";
+        game.gamestatechangedAt = null;
+        console.log("two minutes passed: ", game.gameState);
+        await game.save();
+      }
+    }
 
     const gameInfo = {
       gameId: game.id,
@@ -100,7 +102,6 @@ class Games extends Base {
       };
       return oneUser;
     });
-
     res.json(gameInfo);
   }
 
@@ -158,10 +159,9 @@ class Games extends Base {
       },
     });
     // For 6 players this condition change to ' === 6 '
-    console.log("num of players: ", activePlayers.length);
     if (activePlayers.length === 3) {
       game.gameState = "Night";
-      // game.gamestatechangedAt = NOW();
+      game.gamestatechangedAt = new Date();
       await game.save();
     }
     res.send("Joined!");
@@ -277,7 +277,7 @@ class Games extends Base {
           await player.save();
         });
         game.gameState = "Day";
-        // game.gamestatechangedAt = NOW();
+        game.gamestatechangedAt = new Date();
         await game.save();
       }
     }
@@ -395,7 +395,7 @@ class Games extends Base {
           await player.save();
         });
         game.gameState = "Night";
-        // game.gamestatechangedAt = NOW();
+        game.gamestatechangedAt = new Date();
         await game.save();
       }
     }
@@ -406,8 +406,6 @@ class Games extends Base {
     const gameId = req.params.id;
     const game = await this.model.findByPk(gameId);
     const players = await game.getUserGames();
-
-    console.log("all players: ", players);
     players.forEach(async (player) => {
       await player.destroy();
     });
@@ -431,14 +429,6 @@ class Games extends Base {
 
     // Remove player from game
     await leavedPlayer.destroy();
-
-    // const game = await this.model.findByPk(gameId);
-    // const activePlayers = await db.UserGame.findAll({
-    //   where: {
-    //     gameId: gameId,
-    //   },
-    // });
-
     res.json({ leavedPlayer });
   }
 }

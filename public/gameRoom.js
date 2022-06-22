@@ -255,8 +255,13 @@ async function showWinnerInfo() {
   console.log(result.data);
   const players = result.data;
   let alivePlayers = players.filter((p) => p.alive);
+  if (alivePlayers.length > 1) {
+    alert("Game over! No winner.");
+    initGame();
+    return;
+  }
   const winners = alivePlayers[0].role;
-  console.log(players);
+  console.log(winners);
   const pWinner = document.createElement("p");
   pWinner.textContent = `Congrats! The winner is ${winners}! Click the button to play again!`;
   outputMsgContainer.append(pWinner);
