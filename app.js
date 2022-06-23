@@ -87,14 +87,8 @@ app.use("/", gamesRouter);
 
 const PORT = process.env.PORT || 8088;
 
-// app.listen(PORT, () => {
-//   console.log(`App is listening on port ${PORT}!`);
-// });
-
 io.on("connection", (socket) => {
   socket.on("join", (data) => {
-    // console.log(data);
-    console.log("will join room " + data.game);
     socket.join(data.game);
     for (const room of socket.rooms) {
       if (room !== socket.id) {
@@ -106,11 +100,11 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("chat message", (msg) => {
-    console.log(msg);
+  socket.on("chat message", (data) => {
     for (const room of socket.rooms) {
       if (room !== socket.id) {
-        io.to(room).emit("chat message", msg); // Send message to everyone including the sender
+        io.to(room).emit("chat message", data.userName + ": " + data.msg);
+        // Send message to everyone including the sender
       }
     }
   });
@@ -119,7 +113,8 @@ io.on("connection", (socket) => {
     console.log("user disconnected");
     for (const room of socket.rooms) {
       if (room !== socket.id) {
-        io.to(room).emit("chat message", "A user disconnected"); // Send message to everyone including the sender
+        io.to(room).emit("chat message", "A user disconnected");
+        // Send message to everyone including the sender
       }
     }
   });

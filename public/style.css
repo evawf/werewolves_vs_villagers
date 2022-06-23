@@ -97,9 +97,20 @@ p {
 
 #messagesContainer {
   width: 100%;
-  height: 130px;
+  height: 150px;
   background: none;
   margin-bottom: 0;
+}
+
+li:nth-child(odd) {
+  list-style-type: none;
+  width: 100%;
+}
+
+li:nth-child(even) {
+  list-style-type: none;
+  color: green;
+  width: 100%;
 }
 
 .leaveGameDiv {
