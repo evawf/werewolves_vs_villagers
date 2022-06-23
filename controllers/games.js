@@ -41,6 +41,7 @@ class Games extends Base {
   async getGamesInfo(req, res) {
     const games = await this.model.findAll({
       include: [db.UserGame],
+      order: [["updatedAt", "DESC"]],
     });
     res.json({ games });
   }
