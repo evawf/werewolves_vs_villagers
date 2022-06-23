@@ -70,11 +70,33 @@
     <button id="submitBtn" class="btn btn-info form-control">Submit</button>
   </div>
 </div>
-<a
-  id="gameHallBtn"
-  style="display: none"
-  href="/gameHall"
-  class="btn btn-info form-control"
+<div id="gameRules">
+  <h5 class="text-center">How to play?</h5>
+  <p>
+    Werewolf is a super fun game that can be played with a group of people. The
+    object of the game is to identify and kill the werewolves amongst the
+    villagers.
+  </p>
+  <ol>
+    <li>1. Assemble at least 6 players to join the same game room.</li>
+    <li>
+      2. Each player will be assigned a role eight werewolf or villager
+      automatically once join the room.
+    </li>
+    <li>
+      3. Game starts from Night mode: werewolf will vote to kill a villager,
+      highest vote gets killed, then game switch to Day mode.
+    </li>
+    <li>
+      4. During Day mode, all alive players can vote to kill a "werewolf", then
+      game switch to Night mode again if there is no winner.
+    </li>
+    <li>
+      5. If all werewolves are killed, then villager wins, or the contrary.
+    </li>
+  </ol>
+</div>
+<a id="gameHallBtn" style="display: none" href="/gameHall" class="btn btn-info"
   >Enter GameHall</a
 >
 <%- include('./partials/footer') %>

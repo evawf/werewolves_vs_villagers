@@ -55,6 +55,23 @@ html {
   align-items: center;
 }
 
+#gameRules {
+  background: #868e96;
+  margin: 0 10px 5px 10px;
+  padding: 10px;
+  border-radius: 5px;
+  color: #000;
+}
+
+#gameRules li {
+  color: #000;
+}
+
+#gameRoomsContainer {
+  max-height: 900px;
+  width: 100%;
+}
+
 #playersContainer {
   height: 300px;
   width: 100%;

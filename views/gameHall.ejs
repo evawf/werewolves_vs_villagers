@@ -27,13 +27,6 @@
       <div class="d-flex flex-column algin-content-center mt-0 my-3">
         <a href="/logout" class="btn btn-primary">LOG OUT</a>
       </div>
-
-      <!-- Message Div  -->
-      <div class="d-flex flex-column algin-content-center mt-0 my-2">
-        <h3>Hey <%= currentUser.displayName %>, welcome to Game Hall!</h3>
-        <div id="outputMsg"></div>
-      </div>
-
       <!-- Create new game room  -->
       <div
         class="mb-3 d-flex flex-column justify-content-center text-center mb-3"
@@ -42,6 +35,14 @@
           New Game Room
         </button>
       </div>
+      <!-- Message Div  -->
+      <div
+        class="d-flex flex-column algin-content-center mt-0 mb-3 pb-2 text-center"
+      >
+        <h3>Hey <%= currentUser.displayName %>, welcome!!!</h3>
+        <div id="outputMsg"></div>
+      </div>
+
       <!-- Input new room name  -->
       <div
         id="createRoom"
@@ -76,12 +77,11 @@
       </div>
       <hr />
       <!-- Game room list  -->
+      <h4 class="text-center">Game Rooms</h4>
       <div
         id="gameRoomsContainer"
-        class="mb-3 d-flex flex-column justify-content-center text-center mt-1"
-      >
-        <h4>Game Rooms</h4>
-      </div>
+        class="mb-3 d-flex flex-column justify-content-start text-center m-0 overflow-scroll"
+      ></div>
     </div>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"

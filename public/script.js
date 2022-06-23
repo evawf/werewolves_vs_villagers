@@ -4,6 +4,8 @@ const gameHallBtn = document.getElementById("gameHallBtn");
 const signupBtn = document.getElementById("signupBtn");
 const submitBtn = document.getElementById("submitBtn");
 const loginBtn = document.getElementById("loginBtn");
+const gameRulesDiv = document.getElementById("gameRules");
+gameRulesDiv.style.display = "none";
 
 // Check if user has logged in
 const getCookie = (cName) => {
@@ -22,6 +24,7 @@ const checkIsLoggedIn = () => {
   const isUserId = getCookie("userId");
   if (isLoggedIn) {
     gameHallBtn.style.display = "block";
+    gameRulesDiv.style.display = "block";
     loginDiv.style.display = "none";
     signupDiv.style.display = "none";
   }
@@ -41,6 +44,7 @@ loginBtn.addEventListener("click", async () => {
     loginDiv.style.display = "none";
     signupDiv.style.display = "none";
     gameHallBtn.style.display = "block";
+    gameRulesDiv.style.display = "block";
   }
 });
 

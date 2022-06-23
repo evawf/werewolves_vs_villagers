@@ -44,7 +44,7 @@ async function showNewGameRooms() {
   gamesArr = result.data.games;
   // Check if new game room
   outputMsgDiv.textContent =
-    "Please choose a room to join the game or create your own game!";
+    "Please choose a game room or create your own game!";
   if (gamesArr.length > currentGamesArr.length) {
     gamesArr.forEach((game) => {
       if (
