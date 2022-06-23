@@ -1,3 +1,5 @@
+// var socket = io();
+
 const newGameBtn = document.getElementById("newGameBtn");
 const gameRoomsContainer = document.getElementById("gameRoomsContainer");
 const outputMsgDiv = document.getElementById("outputMsg");

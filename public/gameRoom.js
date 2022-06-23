@@ -73,7 +73,7 @@ async function WaitForPlayers(gameId) {
 
   let gameState = result.data.gameState;
   if (gameState === "Waiting") {
-    setTimeout(WaitForPlayers.bind(null, gameId), 2000);
+    // setTimeout(WaitForPlayers.bind(null, gameId), 2000);
     return;
   }
 
@@ -146,7 +146,7 @@ async function waitForNightToFinish() {
   const result = await axios.get(`/games/${gameId}/info`);
   const game = result.data;
   if (game.gameState === "Night") {
-    setTimeout(waitForNightToFinish, 2000);
+    // setTimeout(waitForNightToFinish, 2000);
     return;
   }
 
@@ -235,7 +235,7 @@ async function waitForDayToFinish() {
   const result = await axios.get(`/games/${gameId}/info`);
   const game = result.data;
   if (game.gameState === "Day") {
-    setTimeout(waitForDayToFinish, 2000);
+    // setTimeout(waitForDayToFinish, 2000);
     return;
   }
 
@@ -284,4 +284,4 @@ async function quitGame() {
   window.location.href = `/gameHall`; // Redirect to game hall
 }
 
-WaitForPlayers(gameId);
+// WaitForPlayers(gameId);

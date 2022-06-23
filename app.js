@@ -6,6 +6,15 @@ if (process.env.ENV !== "production") {
 
 const express = require("express");
 const app = express();
+/********************************************/
+/********  Socket.IO    *********************/
+/********************************************/
+const http = require("http");
+const server = http.createServer(app);
+const { Server } = require("socket.io");
+const io = new Server(server);
+/********************************************/
+
 const cookieParser = require("cookie-parser");
 const methodOverride = require("method-override");
 const jsSHA = require("jssha");
@@ -77,6 +86,45 @@ app.use("/", usersRouter);
 app.use("/", gamesRouter);
 
 const PORT = process.env.PORT || 8088;
-app.listen(PORT, () => {
+
+// app.listen(PORT, () => {
+//   console.log(`App is listening on port ${PORT}!`);
+// });
+
+io.on("connection", (socket) => {
+  socket.on("join", (data) => {
+    console.log(data);
+    console.log("Will join room: " + data.game);
+    socket.join(data.game);
+    for (const room of socket.rooms) {
+      if (room !== socket.id) {
+        io.to(data.game).emit(
+          "chat message",
+          "a player has joined game:" + data.game
+        );
+      }
+    }
+  });
+
+  socket.on("chat message", (msg) => {
+    console.log(msg);
+    for (const room of socket.rooms) {
+      if (room !== socket.id) {
+        io.to(room).emit("chat message", msg);
+      }
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
+    for (const room of socket.rooms) {
+      if (room !== socket.id) {
+        io.to(room).emit("chat message", "A player disconnected");
+      }
+    }
+  });
+});
+
+server.listen(PORT, () => {
   console.log(`App is listening on port ${PORT}!`);
 });
