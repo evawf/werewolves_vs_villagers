@@ -1,12 +1,9 @@
 const playersContainer = document.getElementById("playersContainer");
 const outputMsgContainer = document.getElementById("outputMsg");
 const gameId = document.getElementById("gameId").value;
-// const restartBtn = document.getElementById("restartBtn");
 const quitBtn = document.getElementById("quitBtn");
-// restartBtn.style.display = "none";
 let currentPlayersArr = [];
 let currentPlayer;
-var socket = io();
 
 async function WaitForPlayers(gameId) {
   quitBtn.addEventListener("click", quitGame);
@@ -18,6 +15,7 @@ async function WaitForPlayers(gameId) {
 
   result = await axios.get(`/games/${gameId}/info`);
   console.log(result);
+
   // if there any new players:
   if (result.data.players.length > currentPlayersArr.length) {
     result.data.players.forEach((player) => {
@@ -30,7 +28,7 @@ async function WaitForPlayers(gameId) {
       ) {
         currentPlayersArr.push(player);
         const pMsg = document.createElement("p");
-        pMsg.textContent = `Player ${player.displayName} has joined.`;
+        // pMsg.textContent = `Player ${player.displayName} has joined.`;
         outputMsgContainer.append(pMsg);
 
         if (result.data.players.length < 3) {
@@ -284,27 +282,3 @@ async function quitGame() {
 }
 
 WaitForPlayers(gameId);
-
-// Socket chat
-socket.on("connect", () => {
-  socket.emit("join", { game: gameId });
-});
-
-var messages = document.getElementById("messages");
-var form = document.getElementById("form");
-var input = document.getElementById("input");
-
-form.addEventListener("submit", function (e) {
-  e.preventDefault();
-  if (input.value) {
-    socket.emit("chat message", input.value);
-    input.value = "";
-  }
-});
-
-socket.on("chat message", function (msg) {
-  var item = document.createElement("li");
-  item.textContent = msg;
-  messages.appendChild(item);
-  window.scrollTo(0, document.body.scrollHeight);
-});

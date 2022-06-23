@@ -93,14 +93,14 @@ const PORT = process.env.PORT || 8088;
 
 io.on("connection", (socket) => {
   socket.on("join", (data) => {
-    console.log(data);
-    console.log("Will join room: " + data.game);
+    // console.log(data);
+    console.log("will join room " + data.game);
     socket.join(data.game);
     for (const room of socket.rooms) {
       if (room !== socket.id) {
         io.to(data.game).emit(
           "chat message",
-          "a player has joined game:" + data.game
+          data.userName + " has joined game " + data.game
         );
       }
     }
@@ -110,7 +110,7 @@ io.on("connection", (socket) => {
     console.log(msg);
     for (const room of socket.rooms) {
       if (room !== socket.id) {
-        io.to(room).emit("chat message", msg);
+        io.to(room).emit("chat message", msg); // Send message to everyone including the sender
       }
     }
   });
@@ -119,7 +119,7 @@ io.on("connection", (socket) => {
     console.log("user disconnected");
     for (const room of socket.rooms) {
       if (room !== socket.id) {
-        io.to(room).emit("chat message", "A player disconnected");
+        io.to(room).emit("chat message", "A user disconnected"); // Send message to everyone including the sender
       }
     }
   });
