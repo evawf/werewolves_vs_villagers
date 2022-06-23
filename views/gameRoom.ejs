@@ -55,15 +55,27 @@
       <div
         class="d-flex flex-column algin-content-center mt-0 my-3 fixed-bottom"
       >
+        <!-- Discussion container  -->
+        <div
+          id="messagesContainer"
+          class="d-flex flex-column algin-content-center justify-content-end bg-light border rounded bg-light"
+        >
+          <div
+            class="d-flex flex-column algin-content-center bg-light bg-light overflow-scroll"
+          >
+            <ul id="messages"></ul>
+          </div>
+          <form id="form" action="" class="d-flex flex-row m-1">
+            <input
+              id="input"
+              autocomplete="off"
+              class="form-control border border-gray"
+            />
+            <button class="btn btn-success">Send</button>
+          </form>
+        </div>
+        <!-- Leave game button  -->
         <button id="quitBtn" class="btn btn-warning">Leave game</button>
-      </div>
-
-      <!-- Discussion container  -->
-      <div id="messagesContainer" style="background-color: white">
-        <ul id="messages"></ul>
-        <form id="form" action="">
-          <input id="input" autocomplete="off" /><button>Send</button>
-        </form>
       </div>
     </div>
 
@@ -75,32 +87,6 @@
     <script src="https://cdn.jsdelivr.net/npm/js-loading-overlay@1.1.0/dist/js-loading-overlay.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script>
-      var socket = io();
-
-      socket.on("connect", () => {
-        socket.emit("join", { game: gameId, current });
-      });
-
-      var messages = document.getElementById("messages");
-      var form = document.getElementById("form");
-      var input = document.getElementById("input");
-
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        if (input.value) {
-          socket.emit("chat message", input.value);
-          input.value = "";
-        }
-      });
-
-      socket.on("chat message", function (msg) {
-        var item = document.createElement("li");
-        item.textContent = msg;
-        messages.appendChild(item);
-        window.scrollTo(0, document.body.scrollHeight);
-      });
-    </script>
     <script src="/gameRoom.js"></script>
   </body>
 </html>
