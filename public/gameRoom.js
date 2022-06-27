@@ -4,6 +4,7 @@ const gameId = document.getElementById("gameId").value;
 const quitBtn = document.getElementById("quitBtn");
 let currentPlayersArr = [];
 let currentPlayer;
+const numOfPlayers = 3;
 
 async function WaitForPlayers(gameId) {
   quitBtn.addEventListener("click", quitGame);
@@ -16,7 +17,7 @@ async function WaitForPlayers(gameId) {
   result = await axios.get(`/games/${gameId}/info`);
   console.log(result);
 
-  // if there any new players:
+  // If there any new players:
   if (result.data.players.length > currentPlayersArr.length) {
     result.data.players.forEach((player) => {
       if (
@@ -31,7 +32,7 @@ async function WaitForPlayers(gameId) {
         // pMsg.textContent = `Player ${player.displayName} has joined.`;
         outputMsgContainer.append(pMsg);
 
-        if (result.data.players.length < 3) {
+        if (result.data.players.length < numOfPlayers) {
           const pWait = document.createElement("p");
           pWait.textContent = "Please wait for more players to join the room.";
           outputMsgContainer.append(pWait);
@@ -120,13 +121,13 @@ function installVoteVillagerClickEvent(playersDivs) {
 async function nightMode() {
   quitBtn.style.display = "none";
   const p = document.createElement("p");
-  p.textContent = "Game start: NIGHT - Werevolve pick a villager to kill!";
+  p.textContent = "Game start: NIGHT - Werewolf pick a villager to kill!";
   outputMsgContainer.append(p);
 
   document.body.style.background = "#4b5875";
   const result = await axios.get(`/games/${gameId}/players`);
   const alive = result.data.filter((p) => p.alive).map((p) => p.userId);
-  const playersDiv = document.querySelectorAll(".player");
+  // const playersDiv = document.querySelectorAll(".player");
 
   // Werewolf select a villager
   if (currentPlayer.role === "Werewolf") {
@@ -159,7 +160,7 @@ async function waitForNightToFinish() {
 }
 
 function installVoteWerewolfClickEvent(playersDivs) {
-  console.log(playersDivs);
+  // console.log(playersDivs);
   let vote = null;
   let votedPlayer = null;
   playersDivs.forEach((player) => {
@@ -199,14 +200,15 @@ async function dayMode() {
     if (!alive.includes(currentPlayersArr[i].id)) {
       playersDiv[i].style.background = "gray";
       if (currentPlayer.id !== currentPlayersArr[i].id) {
-        const p1 = document.createElement("p");
+        const pMsg = document.createElement("p");
         const p2 = document.createElement("p");
-
-        p1.textContent = `Day: Poor villager ${playersDiv[i].textContent} got killed!`;
-        p2.textContent = "Let's find out who's the bad werewolf!";
-
-        outputMsgContainer.append(p1);
-        outputMsgContainer.append(p2);
+        const pRole = document.createElement("p");
+        pMsg.textContent = `Day: Poor villager ${playersDiv[i].textContent} got killed! Now let's find out who's the werewolf!`;
+        // p2.textContent = "Let's find out who's the bad werewolf!";
+        pRole.textContent = "Villager"; // Can use villager image as background
+        outputMsgContainer.append(pMsg);
+        // outputMsgContainer.append(p2);
+        playersDiv[i].append(pRole);
       } else {
         const p3 = document.createElement("p");
         p3.textContent += `Sorry, you got killed by werewolf!`;
