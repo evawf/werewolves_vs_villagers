@@ -3,8 +3,8 @@ const db = require("../models/index");
 // const { Sequelize } = require("sequelize");
 
 // Generate roles array
+const numOfPlayers = 3;
 const getRoles = () => {
-  // const numOfPlayers = 3;
   // const numOfWerevolves = Math.floor(numOfPlayers / 3);
   // const roles = ["Werevolf", "Villager"];
   // const rolesArr = [];
@@ -15,7 +15,16 @@ const getRoles = () => {
   //   rolesArr.push(roles[1]);
   // }
   // let roles = ["Werewolf", "Villager", "Werewolf", "Villager", "Villager"];
-  let roles = ["Werewolf", "Villager", "Villager"]; // Test mode: 3 players
+  let roles = ["Werewolf", "Villager", "Villager"]; // Dev mode: 3 players
+  // let roles = [
+  //   "Werewolf",
+  //   "Werewolf",
+  //   "Villager",
+  //   "Villager",
+  //   "Villager",
+  //   "Villager",
+  // ]; // Prod mode: 6 players
+
   // Shuffle roles
   for (let i = roles.length - 1; i > 0; i -= 1) {
     let idx = Math.floor(Math.random() * i);
@@ -145,6 +154,8 @@ class Games extends Base {
 
     // For 6 players this condition change to < 6
     if (players.length < 3) {
+      // Global var NumOfPlayers
+      // if (players.length < numOfPlayers) {
       const user = await db.User.findByPk(currentUser.id);
       await game.addUser(user, {
         through: {
@@ -161,6 +172,7 @@ class Games extends Base {
     });
     // For 6 players this condition change to ' === 6 '
     if (activePlayers.length === 3) {
+      // if (activePlayers.length === numOfPlayers) {
       game.gameState = "Night";
       game.gamestatechangedAt = new Date();
       await game.save();

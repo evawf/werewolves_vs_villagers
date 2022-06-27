@@ -43,8 +43,7 @@ async function showNewGameRooms() {
   const result = await axios.get("/getGamesInfo");
   gamesArr = result.data.games;
   // Check if new game room
-  outputMsgDiv.textContent =
-    "Please choose a game room or create your own game!";
+  outputMsgDiv.textContent = "Please choose a room or create your own room!";
   if (gamesArr.length > currentGamesArr.length) {
     gamesArr.forEach((game) => {
       if (
