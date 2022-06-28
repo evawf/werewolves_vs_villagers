@@ -5,6 +5,7 @@ const quitBtn = document.getElementById("quitBtn");
 let currentPlayersArr = [];
 let currentPlayer;
 const numOfPlayers = 4;
+let killedPlayers = [];
 
 async function WaitForPlayers(gameId) {
   quitBtn.addEventListener("click", quitGame);
@@ -16,6 +17,10 @@ async function WaitForPlayers(gameId) {
 
   result = await axios.get(`/games/${gameId}/info`);
   console.log(result);
+  let allPlayers = result.data.players;
+  allPlayers.map((player) => {
+    !player.alive ? killedPlayers.push(player) : 0;
+  });
 
   // If there any new players:
   if (result.data.players.length > currentPlayersArr.length) {
@@ -126,9 +131,13 @@ async function nightMode() {
 
   document.body.style.background = "#4b5875";
   const result = await axios.get(`/games/${gameId}/players`);
+  console.log("night mode: line 129, ", result);
   const alive = result.data.filter((p) => p.alive).map((p) => p.userId);
+  console.log(alive);
   const playersDiv = document.querySelectorAll(".player");
   //******************************************************** */
+  console.log("night:", killedPlayers);
+
   for (let i = 0; i < currentPlayersArr.length; i += 1) {
     if (!alive.includes(currentPlayersArr[i].id)) {
       playersDiv[i].style.background = "gray";
@@ -137,9 +146,9 @@ async function nightMode() {
         const p2 = document.createElement("p");
         const pRole = document.createElement("p");
         pMsg.textContent = `Poor ${playersDiv[i].textContent} got killed!`;
-        for (let j = 0; j < result.data.length; j++) {
-          if (currentPlayersArr[i].id === result.data[j].userId) {
-            pRole.textContent = result.data[j].role; // Can use villager image as background
+        for (let j = 0; j < killedPlayers.length; j++) {
+          if (currentPlayersArr[i].id === killedPlayers[j].id) {
+            pRole.textContent = killedPlayers[j].role; // Can use villager image as background
           }
         }
         outputMsgContainer.append(pMsg);
@@ -218,8 +227,12 @@ async function dayMode() {
   quitBtn.style.display = "none";
   document.body.style.background = "#fcd9b6";
   const result = await axios.get(`/games/${gameId}/players`);
+  console.log("line 225 day mode: ", result);
   const alive = result.data.filter((p) => p.alive).map((p) => p.userId);
+  console.log(alive);
   const playersDiv = document.querySelectorAll(".player");
+  console.log("day mode: ", killedPlayers);
+
   for (let i = 0; i < currentPlayersArr.length; i += 1) {
     if (!alive.includes(currentPlayersArr[i].id)) {
       playersDiv[i].style.background = "gray";

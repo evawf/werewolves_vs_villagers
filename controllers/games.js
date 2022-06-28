@@ -89,7 +89,7 @@ class Games extends Base {
 
     // if state == Night or state == Day and player is not active for more that 2 mintues then game over
     if (game.gameState === "Night" || game.gameState === "Day") {
-      if (new Date().getMinutes() - game.gamestatechangedAt.getMinutes() > 10) {
+      if (new Date().getMinutes() - game.gamestatechangedAt.getMinutes() > 2) {
         game.gameState = "Game over";
         game.gamestatechangedAt = null;
         console.log("two minutes passed: ", game.gameState);

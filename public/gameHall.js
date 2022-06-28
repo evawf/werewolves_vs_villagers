@@ -58,7 +58,7 @@ async function showNewGameRooms() {
         newGameDiv.id = `${game.id}`;
         const gameLink = document.createElement("span");
         gameLink.className = "gameName";
-        if (game.userGames.length < 3) {
+        if (game.userGames.length < numOfPlayers) {
           gameLink.textContent = `${game.name} | ${game.userGames.length}/${numOfPlayers}`; // add number of players here
           gameLink.href = `/games/${game.id}`;
         } else {
