@@ -4,7 +4,7 @@ const gameId = document.getElementById("gameId").value;
 const quitBtn = document.getElementById("quitBtn");
 let currentPlayersArr = [];
 let currentPlayer;
-const numOfPlayers = 3;
+const numOfPlayers = 4;
 
 async function WaitForPlayers(gameId) {
   quitBtn.addEventListener("click", quitGame);

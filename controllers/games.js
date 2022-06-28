@@ -3,7 +3,7 @@ const db = require("../models/index");
 // const { Sequelize } = require("sequelize");
 
 // Generate roles array
-const numOfPlayers = 3;
+const numOfPlayers = 4;
 const getRoles = () => {
   // const numOfWerevolves = Math.floor(numOfPlayers / 3);
   // const roles = ["Werevolf", "Villager"];
@@ -15,7 +15,7 @@ const getRoles = () => {
   //   rolesArr.push(roles[1]);
   // }
   // let roles = ["Werewolf", "Villager", "Werewolf", "Villager", "Villager"];
-  let roles = ["Werewolf", "Villager", "Villager"]; // Dev mode: 3 players
+  let roles = ["Werewolf", "Villager", "Villager", "Villager"]; // Dev mode: 3 players
   // let roles = [
   //   "Werewolf",
   //   "Werewolf",
@@ -89,7 +89,7 @@ class Games extends Base {
 
     // if state == Night or state == Day and player is not active for more that 2 mintues then game over
     if (game.gameState === "Night" || game.gameState === "Day") {
-      if (new Date().getMinutes() - game.gamestatechangedAt.getMinutes() > 2) {
+      if (new Date().getMinutes() - game.gamestatechangedAt.getMinutes() > 10) {
         game.gameState = "Game over";
         game.gamestatechangedAt = null;
         console.log("two minutes passed: ", game.gameState);
@@ -153,9 +153,9 @@ class Games extends Base {
     });
 
     // For 6 players this condition change to < 6
-    if (players.length < 3) {
-      // Global var NumOfPlayers
-      // if (players.length < numOfPlayers) {
+    // if (players.length < 3) {
+    // Global var NumOfPlayers
+    if (players.length < numOfPlayers) {
       const user = await db.User.findByPk(currentUser.id);
       await game.addUser(user, {
         through: {
@@ -171,8 +171,8 @@ class Games extends Base {
       },
     });
     // For 6 players this condition change to ' === 6 '
-    if (activePlayers.length === 3) {
-      // if (activePlayers.length === numOfPlayers) {
+    // if (activePlayers.length === 3) {
+    if (activePlayers.length === numOfPlayers) {
       game.gameState = "Night";
       game.gamestatechangedAt = new Date();
       await game.save();

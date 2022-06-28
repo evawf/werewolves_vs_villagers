@@ -1,5 +1,3 @@
-// var socket = io();
-
 const newGameBtn = document.getElementById("newGameBtn");
 const gameRoomsContainer = document.getElementById("gameRoomsContainer");
 const outputMsgDiv = document.getElementById("outputMsg");
@@ -9,6 +7,7 @@ const cancelBtn = document.getElementById("cancelBtn");
 createRoom.style.display = "none";
 let currentGamesArr = [];
 let games;
+const numOfPlayers = 4;
 
 // Cancel new room creation
 cancelBtn.addEventListener("click", () => {
@@ -60,7 +59,7 @@ async function showNewGameRooms() {
         const gameLink = document.createElement("span");
         gameLink.className = "gameName";
         if (game.userGames.length < 3) {
-          gameLink.textContent = `${game.name} | ${game.userGames.length}/3`; // add number of players here
+          gameLink.textContent = `${game.name} | ${game.userGames.length}/${numOfPlayers}`; // add number of players here
           gameLink.href = `/games/${game.id}`;
         } else {
           gameLink.textContent = `${game.name} | FULL`;
