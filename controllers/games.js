@@ -302,7 +302,7 @@ class Games extends Base {
     const players = await db.UserGame.findAll({
       where: {
         gameId: gameId,
-        alive: true,
+        // alive: true,
       },
       include: [db.User],
     });

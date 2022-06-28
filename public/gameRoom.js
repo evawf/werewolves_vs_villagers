@@ -5,7 +5,7 @@ const quitBtn = document.getElementById("quitBtn");
 let currentPlayersArr = [];
 let currentPlayer;
 const numOfPlayers = 4;
-let killedPlayers = [];
+// let killedPlayers = [];
 
 async function WaitForPlayers(gameId) {
   quitBtn.addEventListener("click", quitGame);
@@ -17,10 +17,10 @@ async function WaitForPlayers(gameId) {
 
   result = await axios.get(`/games/${gameId}/info`);
   console.log(result);
-  let allPlayers = result.data.players;
-  allPlayers.map((player) => {
-    !player.alive ? killedPlayers.push(player) : 0;
-  });
+  // let allPlayers = result.data.players;
+  // allPlayers.map((player) => {
+  //   !player.alive ? killedPlayers.push(player) : 0;
+  // });
 
   // If there any new players:
   if (result.data.players.length > currentPlayersArr.length) {
@@ -133,22 +133,23 @@ async function nightMode() {
   const result = await axios.get(`/games/${gameId}/players`);
   console.log("night mode: line 129, ", result);
   const alive = result.data.filter((p) => p.alive).map((p) => p.userId);
-  console.log(alive);
+  const dead = result.data.filter((p) => !p.alive);
+  console.log(dead);
+
   const playersDiv = document.querySelectorAll(".player");
   //******************************************************** */
-  console.log("night:", killedPlayers);
+  // console.log("night:", killedPlayers);
 
   for (let i = 0; i < currentPlayersArr.length; i += 1) {
     if (!alive.includes(currentPlayersArr[i].id)) {
       playersDiv[i].style.background = "gray";
       if (currentPlayer.id !== currentPlayersArr[i].id) {
         const pMsg = document.createElement("p");
-        const p2 = document.createElement("p");
         const pRole = document.createElement("p");
         pMsg.textContent = `Poor ${playersDiv[i].textContent} got killed!`;
-        for (let j = 0; j < killedPlayers.length; j++) {
-          if (currentPlayersArr[i].id === killedPlayers[j].id) {
-            pRole.textContent = killedPlayers[j].role; // Can use villager image as background
+        for (let j = 0; j < dead.length; j++) {
+          if (currentPlayersArr[i].id === dead[j].userId) {
+            pRole.textContent = dead[j].role; // Can use villager image as background
           }
         }
         outputMsgContainer.append(pMsg);
@@ -197,7 +198,7 @@ function installVoteWerewolfClickEvent(playersDivs) {
   let vote = null;
   let votedPlayer = null;
   playersDivs.forEach((player) => {
-    console.log(player);
+    // console.log(player);
     if (player.dataset.you === "false") {
       player.addEventListener("click", async function click(e) {
         console.log("you clicked");
@@ -229,9 +230,10 @@ async function dayMode() {
   const result = await axios.get(`/games/${gameId}/players`);
   console.log("line 225 day mode: ", result);
   const alive = result.data.filter((p) => p.alive).map((p) => p.userId);
-  console.log(alive);
+  const dead = result.data.filter((p) => !p.alive);
+  console.log(dead);
   const playersDiv = document.querySelectorAll(".player");
-  console.log("day mode: ", killedPlayers);
+  // console.log("day mode: ", killedPlayers);
 
   for (let i = 0; i < currentPlayersArr.length; i += 1) {
     if (!alive.includes(currentPlayersArr[i].id)) {
@@ -291,18 +293,38 @@ async function showWinnerInfo() {
   console.log(result.data);
   const players = result.data;
   let alivePlayers = players.filter((p) => p.alive);
-  if (alivePlayers.length > 1) {
+  const werewolves = alivePlayers.filter((p) => p.role === "Werevolf");
+  const villagers = alivePlayers.filter((p) => p.role === "Villager");
+  console.log("werewolf:", werewolves);
+  console.log("villager:", villagers);
+
+  if (werewolves.length === 0) {
+    alert("Villagers Won!");
+    initGame();
+    return;
+  } else if (villagers.length === 0) {
+    alert("Werewolves Won!");
+    initGame();
+    return;
+  } else {
     alert("Game over! No winner.");
     initGame();
     return;
   }
-  const winners = alivePlayers[0].role;
-  console.log(winners);
-  const pWinner = document.createElement("p");
-  pWinner.textContent = `Congrats! The winner is ${winners}! Click the button to play again!`;
-  outputMsgContainer.append(pWinner);
-  alert(`Congrats! The winner is ${winners}.`);
-  initGame();
+
+  ///////////////////////////////////////
+  // if (alivePlayers.length > 1) {
+  //   alert("Game over! No winner.");
+  //   initGame();
+  //   return;
+  // }
+  // const winners = alivePlayers[0].role;
+  // console.log(winners);
+  // const pWinner = document.createElement("p");
+  // pWinner.textContent = `Congrats! The winner is ${winners}! Click the button to play again!`;
+  // outputMsgContainer.append(pWinner);
+  // alert(`Congrats! The winner is ${winners}.`);
+  // initGame();
 }
 
 async function initGame() {
