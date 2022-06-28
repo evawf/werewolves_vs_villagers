@@ -127,7 +127,31 @@ async function nightMode() {
   document.body.style.background = "#4b5875";
   const result = await axios.get(`/games/${gameId}/players`);
   const alive = result.data.filter((p) => p.alive).map((p) => p.userId);
-  // const playersDiv = document.querySelectorAll(".player");
+  const playersDiv = document.querySelectorAll(".player");
+  //******************************************************** */
+  for (let i = 0; i < currentPlayersArr.length; i += 1) {
+    if (!alive.includes(currentPlayersArr[i].id)) {
+      playersDiv[i].style.background = "gray";
+      if (currentPlayer.id !== currentPlayersArr[i].id) {
+        const pMsg = document.createElement("p");
+        const p2 = document.createElement("p");
+        const pRole = document.createElement("p");
+        pMsg.textContent = `Poor ${playersDiv[i].textContent} got killed!`;
+        for (let j = 0; j < result.data.length; j++) {
+          if (currentPlayersArr[i].id === result.data[j].userId) {
+            pRole.textContent = result.data[j].role; // Can use villager image as background
+          }
+        }
+        outputMsgContainer.append(pMsg);
+        playersDiv[i].append(pRole);
+      } else {
+        const p3 = document.createElement("p");
+        p3.textContent += `Sorry, you got killed!`;
+        outputMsgContainer.append(p3);
+      }
+    }
+  }
+  //*************************************** */
 
   // Werewolf select a villager
   if (currentPlayer.role === "Werewolf") {
