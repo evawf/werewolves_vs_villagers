@@ -424,6 +424,7 @@ class Games extends Base {
     });
 
     game.gameState = "Waiting";
+    game.gamestatechangedAt = null;
     await game.save();
 
     res.send("Game over!");

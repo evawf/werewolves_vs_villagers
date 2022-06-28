@@ -295,6 +295,7 @@ async function showWinnerInfo() {
   let alivePlayers = players.filter((p) => p.alive);
   const werewolves = alivePlayers.filter((p) => p.role === "Werevolf");
   const villagers = alivePlayers.filter((p) => p.role === "Villager");
+  console.log("all alive players:", alivePlayers[0].role);
   console.log("werewolf:", werewolves);
   console.log("villager:", villagers);
 
