@@ -131,11 +131,27 @@ async function nightMode() {
         for (let j = 0; j < dead.length; j++) {
           if (currentPlayersArr[i].id === dead[j].userId) {
             pRole.textContent = dead[j].role; // Can use villager image as background
+            if (dead[j].role === "Villager") {
+              playersDiv[i].style.backgroundImage =
+                "url('../imgs/villager.jpg')";
+              playersDiv[i].style.color = "black";
+            } else {
+              playersDiv[i].style.backgroundImage =
+                "url('../imgs/werewolf.jpg')";
+            }
+            playersDiv[i].style.backgroundSize = "100px 100px";
           }
         }
         playersDiv[i].append(pRole);
       } else {
         outputMsgContainer.textContent += `Sorry, you got killed!`;
+        if (currentPlayer.role === "Villager") {
+          playersDiv[i].style.backgroundImage = "url('../imgs/villager.jpg')";
+          playersDiv[i].style.color = "black";
+        } else {
+          playersDiv[i].style.backgroundImage = "url('../imgs/werewolf.jpg')";
+        }
+        playersDiv[i].style.backgroundSize = "100px 100px";
       }
     }
   }
@@ -206,15 +222,20 @@ async function dayMode() {
 
   for (let i = 0; i < currentPlayersArr.length; i += 1) {
     if (!alive.includes(currentPlayersArr[i].id)) {
-      playersDiv[i].style.background = "gray";
+      // playersDiv[i].style.background = "gray";
       if (currentPlayer.id !== currentPlayersArr[i].id) {
         const pRole = document.createElement("p");
         outputMsgContainer.textContent = `Day - Poor villager ${playersDiv[i].textContent} got killed! Now let's find out who's the werewolf!`;
-        pRole.textContent = "Villager"; // Can use villager image as background
+        pRole.textContent = "Villager";
+
+        // Can use villager image as background
         playersDiv[i].append(pRole);
       } else {
         outputMsgContainer.textContent = `Sorry, you got killed by werewolf!`;
       }
+      playersDiv[i].style.backgroundImage = "url('../imgs/villager.jpg')";
+      playersDiv[i].style.backgroundSize = "100px 100px";
+      playersDiv[i].style.color = "white";
     }
   }
 

@@ -451,8 +451,10 @@ class Games extends Base {
   }
 
   async deletGame(req, res) {
-    const gameId = req.params.id;
+    const gameId = Number(req.params.id);
+    console.log("gameId: ", gameId);
     const game = await this.model.findByPk(gameId);
+    console.log("game info: ", game);
     await game.destroy();
     res.send("Game deleted!");
   }

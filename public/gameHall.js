@@ -96,37 +96,61 @@ async function showNewGameRooms() {
           gameRoomsContainer.append(newGameDiv);
         }
       });
+    }
 
-      const games = document.querySelectorAll(".gameName");
-      games.forEach((game) => {
-        game.addEventListener("click", async (e) => {
-          console.log("clicked");
-          let clickedGame = e.currentTarget;
-          const gameId = clickedGame.id;
-          const result = await axios.get(`/games/${gameId}/players`);
-          console.log(result.data.length);
-          const joinedPlayersNum = result.data.length;
-          if (joinedPlayersNum < numOfPlayers) {
-            await axios.post("/games/joinGame", { gameId });
-            window.location.href = `/games/${gameId}`;
-          } else {
-            alert("Game room is full, please try another one.");
-          }
-        });
-      });
-
-      const deleteGameBtns = document.querySelectorAll(".deleteGameBtn");
-      deleteGameBtns.forEach((btn) => {
-        btn.addEventListener("click", async (e) => {
-          const gameId = Number(btn.id.slice(4));
-          const result = await axios.get(`/games/${gameId}/players`);
-          console.log(result.data.length);
-          if (result.data.length === 0) {
-            await axios.post(`/games/${gameId}/delete`);
-          }
-        });
+    // If there is a game deleted by owner;
+    if (gamesInfo.length < currentGamesArr.length) {
+      currentGamesArr.forEach((game) => {
+        if (
+          !currentGamesArr
+            .map((g) => {
+              return g.id;
+            })
+            .includes(game.id)
+        ) {
+          currentGamesArr.splice(currentGamesArr.indexOf(game), 1);
+          gameDiv = document.getElementById(`${game.id}`);
+          gameDiv.remove();
+        }
       });
     }
+
+    const games = document.querySelectorAll(".gameName");
+    games.forEach((game) => {
+      game.addEventListener("click", async (e) => {
+        console.log("clicked");
+        let clickedGame = e.currentTarget;
+        const gameId = clickedGame.id;
+        const result = await axios.get(`/games/${gameId}/players`);
+        const playerIdArr = result.data.map((p) => {
+          return p.id;
+        });
+        console.log(playerIdArr);
+        const ccurrentUserId = document.getElementById("currentUserId").value;
+        const joinedPlayersNum = result.data.length;
+        if (joinedPlayersNum < numOfPlayers) {
+          await axios.post("/games/joinGame", { gameId });
+          window.location.href = `/games/${gameId}`;
+        } else if (playerIdArr.includes(ccurrentUserId)) {
+          window.location.href = `/games/${gameId}`;
+        } else {
+          alert("Game room is full, please try another one.");
+        }
+      });
+    });
+
+    const deleteGameBtns = document.querySelectorAll(".deleteGameBtn");
+    deleteGameBtns.forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
+        const gameId = Number(btn.id.slice(4));
+        const result = await axios.get(`/games/${gameId}/players`);
+        console.log(result.data.length);
+        if (result.data.length === 0) {
+          await axios.post(`/games/${gameId}/delete`);
+        }
+      });
+    });
+    // }
   }
   // setTimeout(showNewGameRooms.bind(), 2000);
 }
