@@ -6,8 +6,9 @@ const createRoomBtn = document.getElementById("createRoomBtn");
 const cancelBtn = document.getElementById("cancelBtn");
 createRoom.style.display = "none";
 let currentGamesArr = [];
-let games;
+let gamesInfo;
 const numOfPlayers = 4;
+let currentPlayer;
 
 // Cancel new room creation
 cancelBtn.addEventListener("click", () => {
@@ -24,62 +25,108 @@ createRoomBtn.addEventListener("click", () => {
 // Create Game game
 newGameBtn.addEventListener("click", async () => {
   const gameName = document.getElementById("gameName").value;
+  const ccurrentUserId = document.getElementById("currentUserId").value;
+  console.log(ccurrentUserId);
   if (gameName.trim("")) {
     const newGame = {
       name: document.getElementById("gameName").value,
       gameState: "Waiting",
+      ownerId: Number(ccurrentUserId),
     };
-    const result = await axios.post("/newGame", newGame);
+
+    await axios.post("/newGame", newGame);
     createRoom.style.display = "none";
     createRoomBtn.style.display = "block";
   } else {
     alert("Game name is empty!");
   }
+  // let result = await axios.get(`/games/${gameId}/getCurrentPlayer`);
+  // currentPlayer = {
+  //   id: result.data.player?.userId,
+  //   // role: result.data.player?.role,
+  // };
 });
 
 // Display new game room
 async function showNewGameRooms() {
   const result = await axios.get("/getGamesInfo");
-  gamesArr = result.data.games;
-  // Check if new game room
-  outputMsgDiv.textContent = "Please choose a room or create your own room!";
-  if (gamesArr.length > currentGamesArr.length) {
-    gamesArr.forEach((game) => {
-      if (
-        !currentGamesArr
-          .map((g) => {
-            return g.id;
-          })
-          .includes(game.id)
-      ) {
-        currentGamesArr.push(game);
-        const newGameDiv = document.createElement("div");
-        newGameDiv.className = "game";
-        newGameDiv.id = `${game.id}`;
-        const gameLink = document.createElement("span");
-        gameLink.className = "gameName";
-        if (game.userGames.length < numOfPlayers) {
-          gameLink.textContent = `${game.name} | ${game.userGames.length}/${numOfPlayers}`; // add number of players here
-          gameLink.href = `/games/${game.id}`;
-        } else {
-          gameLink.textContent = `${game.name} | FULL`;
-          gameLink.href = "none";
+  gamesInfo = result.data.games;
+  console.log(result.data);
+  if (result.data === "No game") {
+    outputMsgDiv.textContent =
+      "Create a game room then wait for your friends to join you.";
+    return;
+  } else {
+    // Check if new game room
+    outputMsgDiv.textContent = "Please choose a room or create your own room!";
+    if (gamesInfo.length > currentGamesArr.length) {
+      gamesInfo.forEach((game) => {
+        if (
+          !currentGamesArr
+            .map((g) => {
+              return g.id;
+            })
+            .includes(game.id)
+        ) {
+          currentGamesArr.push(game);
+          const newGameDiv = document.createElement("div");
+          newGameDiv.className = "game";
+          const gameLink = document.createElement("span");
+          gameLink.className = "gameName";
+          gameLink.id = `${game.id}`;
+          if (game.userGames.length < numOfPlayers) {
+            gameLink.textContent = `${game.name} | ${game.userGames.length}/${numOfPlayers}`; // add number of players here
+            gameLink.href = `/games/${game.id}`;
+          } else {
+            gameLink.textContent = `${game.name} | FULL`;
+            gameLink.href = "none";
+          }
+          newGameDiv.append(gameLink);
+          console.log("owner id: ", game.ownerId);
+          const ccurrentUserId = document.getElementById("currentUserId").value;
+          console.log("currentPlayer id: ", ccurrentUserId);
+          if (ccurrentUserId === String(game.ownerId)) {
+            console.log("you are the owner");
+            const button = document.createElement("button");
+            button.className = "deleteGameBtn";
+            button.id = `game${game.id}`;
+            button.textContent = "Delete";
+            newGameDiv.append(button);
+          }
+          gameRoomsContainer.append(newGameDiv);
         }
-        newGameDiv.append(gameLink);
-        gameRoomsContainer.append(newGameDiv);
-      }
-    });
-
-    games = document.querySelectorAll(".game");
-    games.forEach((game) => {
-      game.addEventListener("click", async (e) => {
-        console.log("clicked");
-        let clickedGame = e.currentTarget;
-        const gameId = clickedGame.id;
-        await axios.post("/games/joinGame", { gameId });
-        window.location.href = `/games/${gameId}`;
       });
-    });
+
+      const games = document.querySelectorAll(".gameName");
+      games.forEach((game) => {
+        game.addEventListener("click", async (e) => {
+          console.log("clicked");
+          let clickedGame = e.currentTarget;
+          const gameId = clickedGame.id;
+          const result = await axios.get(`/games/${gameId}/players`);
+          console.log(result.data.length);
+          const joinedPlayersNum = result.data.length;
+          if (joinedPlayersNum < numOfPlayers) {
+            await axios.post("/games/joinGame", { gameId });
+            window.location.href = `/games/${gameId}`;
+          } else {
+            alert("Game room is full, please try another one.");
+          }
+        });
+      });
+
+      const deleteGameBtns = document.querySelectorAll(".deleteGameBtn");
+      deleteGameBtns.forEach((btn) => {
+        btn.addEventListener("click", async (e) => {
+          const gameId = Number(btn.id.slice(4));
+          const result = await axios.get(`/games/${gameId}/players`);
+          console.log(result.data.length);
+          if (result.data.length === 0) {
+            await axios.post(`/games/${gameId}/delete`);
+          }
+        });
+      });
+    }
   }
   // setTimeout(showNewGameRooms.bind(), 2000);
 }

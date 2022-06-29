@@ -45,24 +45,33 @@ class Games extends Base {
     const players = await this.model.findAll({ include: [db.UserGame] });
     const currentUser = res.locals.currentUser;
     res.render("gameHall", { games: players, currentUser: currentUser });
+    // res.render("gameHall");
   }
 
   async getGamesInfo(req, res) {
-    const games = await this.model.findAll({
-      include: [db.UserGame],
-      order: [["updatedAt", "DESC"]],
-    });
-    res.json({ games });
+    try {
+      const games = await this.model.findAll({
+        include: [db.UserGame],
+        order: [["updatedAt", "DESC"]],
+      });
+      console.log("gameInfo: ", games);
+      if (games === undefined) {
+      } else {
+        res.json({ games });
+      }
+    } catch (error) {
+      console.log("Error message: ", error);
+      res.send("No game");
+    }
   }
 
   async addNewGame(req, res) {
     const newGame = req.body;
-    try {
-      const result = await this.model.create(newGame);
-      res.json(result);
-    } catch (error) {
-      res.send("Error: ", error);
-    }
+    console.log("New game: ", newGame);
+
+    const result = await this.model.create(newGame);
+    console.log("created:", result);
+    res.json({ result });
   }
 
   getCurrentUser(req, res) {
@@ -441,7 +450,7 @@ class Games extends Base {
     res.json({ leavedPlayer });
   }
 
-  async deleteGame(req, res) {
+  async deletGame(req, res) {
     const gameId = req.params.id;
     const game = await this.model.findByPk(gameId);
     await game.destroy();
