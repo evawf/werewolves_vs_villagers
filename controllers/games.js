@@ -87,9 +87,9 @@ class Games extends Base {
       ],
     });
 
-    // if state == Night or state == Day and player is not active for more that 2 mintues then game over
+    // if state == Night or state == Day and player is not active for more that 5 mintues then game over
     if (game.gameState === "Night" || game.gameState === "Day") {
-      if (new Date().getMinutes() - game.gamestatechangedAt.getMinutes() > 2) {
+      if (new Date().getMinutes() - game.gamestatechangedAt.getMinutes() > 5) {
         game.gameState = "Game over";
         game.gamestatechangedAt = null;
         console.log("two minutes passed: ", game.gameState);
@@ -152,9 +152,6 @@ class Games extends Base {
       }
     });
 
-    // For 6 players this condition change to < 6
-    // if (players.length < 3) {
-    // Global var NumOfPlayers
     if (players.length < numOfPlayers) {
       const user = await db.User.findByPk(currentUser.id);
       await game.addUser(user, {
@@ -170,8 +167,6 @@ class Games extends Base {
         gameId: gameId,
       },
     });
-    // For 6 players this condition change to ' === 6 '
-    // if (activePlayers.length === 3) {
     if (activePlayers.length === numOfPlayers) {
       game.gameState = "Night";
       game.gamestatechangedAt = new Date();
@@ -426,7 +421,7 @@ class Games extends Base {
     game.gameState = "Waiting";
     game.gamestatechangedAt = null;
     await game.save();
-
+    // await game.destroy();
     res.send("Game over!");
   }
 
@@ -444,6 +439,13 @@ class Games extends Base {
     // Remove player from game
     await leavedPlayer.destroy();
     res.json({ leavedPlayer });
+  }
+
+  async deleteGame(req, res) {
+    const gameId = req.params.id;
+    const game = await this.model.findByPk(gameId);
+    await game.destroy();
+    res.send("Game deleted!");
   }
 }
 

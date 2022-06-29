@@ -5,7 +5,6 @@ const quitBtn = document.getElementById("quitBtn");
 let currentPlayersArr = [];
 let currentPlayer;
 const numOfPlayers = 4;
-// let killedPlayers = [];
 
 async function WaitForPlayers(gameId) {
   quitBtn.addEventListener("click", quitGame);
@@ -16,12 +15,6 @@ async function WaitForPlayers(gameId) {
   };
 
   result = await axios.get(`/games/${gameId}/info`);
-  console.log(result);
-  // let allPlayers = result.data.players;
-  // allPlayers.map((player) => {
-  //   !player.alive ? killedPlayers.push(player) : 0;
-  // });
-
   // If there any new players:
   if (result.data.players.length > currentPlayersArr.length) {
     result.data.players.forEach((player) => {
@@ -34,7 +27,6 @@ async function WaitForPlayers(gameId) {
       ) {
         currentPlayersArr.push(player);
         const pMsg = document.createElement("p");
-        // pMsg.textContent = `Player ${player.displayName} has joined.`;
         outputMsgContainer.append(pMsg);
 
         if (result.data.players.length < numOfPlayers) {
@@ -76,7 +68,7 @@ async function WaitForPlayers(gameId) {
 
   let gameState = result.data.gameState;
   if (gameState === "Waiting") {
-    // setTimeout(WaitForPlayers.bind(null, gameId), 2000);
+    setTimeout(WaitForPlayers.bind(null, gameId), 2000);
     return;
   }
 
@@ -117,7 +109,7 @@ function installVoteVillagerClickEvent(playersDivs) {
         const postVote = await axios.post(`/games/${gameId}/voteVillager`, {
           vote,
         });
-        return vote;
+        return postVote;
       });
     }
   });
@@ -126,7 +118,7 @@ function installVoteVillagerClickEvent(playersDivs) {
 async function nightMode() {
   quitBtn.style.display = "none";
   const p = document.createElement("p");
-  p.textContent = "Game start: NIGHT - Werewolf pick a villager to kill!";
+  p.textContent = "NIGHT - Werewolf pick a villager to kill!";
   outputMsgContainer.append(p);
 
   document.body.style.background = "#4b5875";
@@ -137,8 +129,6 @@ async function nightMode() {
   console.log(dead);
 
   const playersDiv = document.querySelectorAll(".player");
-  //******************************************************** */
-  // console.log("night:", killedPlayers);
 
   for (let i = 0; i < currentPlayersArr.length; i += 1) {
     if (!alive.includes(currentPlayersArr[i].id)) {
@@ -161,7 +151,6 @@ async function nightMode() {
       }
     }
   }
-  //*************************************** */
 
   // Werewolf select a villager
   if (currentPlayer.role === "Werewolf") {
@@ -178,7 +167,7 @@ async function waitForNightToFinish() {
   const result = await axios.get(`/games/${gameId}/info`);
   const game = result.data;
   if (game.gameState === "Night") {
-    // setTimeout(waitForNightToFinish, 2000);
+    setTimeout(waitForNightToFinish, 2000);
     return;
   }
 
@@ -194,11 +183,9 @@ async function waitForNightToFinish() {
 }
 
 function installVoteWerewolfClickEvent(playersDivs) {
-  // console.log(playersDivs);
   let vote = null;
   let votedPlayer = null;
   playersDivs.forEach((player) => {
-    // console.log(player);
     if (player.dataset.you === "false") {
       player.addEventListener("click", async function click(e) {
         console.log("you clicked");
@@ -233,7 +220,6 @@ async function dayMode() {
   const dead = result.data.filter((p) => !p.alive);
   console.log(dead);
   const playersDiv = document.querySelectorAll(".player");
-  // console.log("day mode: ", killedPlayers);
 
   for (let i = 0; i < currentPlayersArr.length; i += 1) {
     if (!alive.includes(currentPlayersArr[i].id)) {
@@ -242,11 +228,9 @@ async function dayMode() {
         const pMsg = document.createElement("p");
         const p2 = document.createElement("p");
         const pRole = document.createElement("p");
-        pMsg.textContent = `Day: Poor villager ${playersDiv[i].textContent} got killed! Now let's find out who's the werewolf!`;
-        // p2.textContent = "Let's find out who's the bad werewolf!";
+        pMsg.textContent = `Day - Poor villager ${playersDiv[i].textContent} got killed! Now let's find out who's the werewolf!`;
         pRole.textContent = "Villager"; // Can use villager image as background
         outputMsgContainer.append(pMsg);
-        // outputMsgContainer.append(p2);
         playersDiv[i].append(pRole);
       } else {
         const p3 = document.createElement("p");
@@ -273,7 +257,7 @@ async function waitForDayToFinish() {
   const result = await axios.get(`/games/${gameId}/info`);
   const game = result.data;
   if (game.gameState === "Day") {
-    // setTimeout(waitForDayToFinish, 2000);
+    setTimeout(waitForDayToFinish, 2000);
     return;
   }
 
@@ -290,14 +274,10 @@ async function waitForDayToFinish() {
 async function showWinnerInfo() {
   document.body.style.background = "none";
   const result = await axios.get(`/games/${gameId}/players`);
-  console.log(result.data);
   const players = result.data;
   let alivePlayers = players.filter((p) => p.alive);
-  const werewolves = alivePlayers.filter((p) => p.role === "Werevolf");
+  const werewolves = alivePlayers.filter((p) => p.role === "Werewolf");
   const villagers = alivePlayers.filter((p) => p.role === "Villager");
-  console.log("all alive players:", alivePlayers[0].role);
-  console.log("werewolf:", werewolves);
-  console.log("villager:", villagers);
 
   if (werewolves.length === 0) {
     alert("Villagers Won!");
@@ -312,25 +292,16 @@ async function showWinnerInfo() {
     initGame();
     return;
   }
-
-  ///////////////////////////////////////
-  // if (alivePlayers.length > 1) {
-  //   alert("Game over! No winner.");
-  //   initGame();
-  //   return;
-  // }
-  // const winners = alivePlayers[0].role;
-  // console.log(winners);
-  // const pWinner = document.createElement("p");
-  // pWinner.textContent = `Congrats! The winner is ${winners}! Click the button to play again!`;
-  // outputMsgContainer.append(pWinner);
-  // alert(`Congrats! The winner is ${winners}.`);
-  // initGame();
 }
 
 async function initGame() {
   await axios.post(`/games/${gameId}/init`);
   window.location.href = `/gameHall`;
+  const result = await axios.get(`/games/${gameId}/players`);
+  // if (result.data.length === 0) {
+  //   await axios.post(`/games/${gameId}/delete`);
+  // }
+  return;
 }
 
 async function quitGame() {
@@ -341,6 +312,7 @@ async function quitGame() {
   leavedPlayerDiv.remove();
   outputMsgContainer.textContent = `${leavedPlayer.displayName} left this room.`;
   window.location.href = `/gameHall`; // Redirect to game hall
+  return;
 }
 
 WaitForPlayers(gameId);
