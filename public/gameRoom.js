@@ -106,7 +106,7 @@ function installVoteVillagerClickEvent(playersDivs) {
         const postVote = await axios.post(`/games/${gameId}/voteVillager`, {
           vote,
         });
-        return postVote;
+        return;
       });
     }
   });
@@ -134,7 +134,7 @@ async function nightMode() {
             if (dead[j].role === "Villager") {
               playersDiv[i].style.backgroundImage =
                 "url('../imgs/villager.jpg')";
-              playersDiv[i].style.color = "black";
+              playersDiv[i].style.color = "white";
             } else {
               playersDiv[i].style.backgroundImage =
                 "url('../imgs/werewolf.jpg')";
@@ -147,7 +147,7 @@ async function nightMode() {
         outputMsgContainer.textContent += `Sorry, you got killed!`;
         if (currentPlayer.role === "Villager") {
           playersDiv[i].style.backgroundImage = "url('../imgs/villager.jpg')";
-          playersDiv[i].style.color = "black";
+          playersDiv[i].style.color = "white";
         } else {
           playersDiv[i].style.backgroundImage = "url('../imgs/werewolf.jpg')";
         }
@@ -194,12 +194,12 @@ function installVoteWerewolfClickEvent(playersDivs) {
       player.addEventListener("click", async function click(e) {
         const clickedPlayer = e.currentTarget;
         if (votedPlayer === null) {
-          clickedPlayer.style.background = "blue";
+          clickedPlayer.style.background = "red";
           votedPlayer = clickedPlayer;
         }
         if (votedPlayer !== null && votedPlayer !== clickedPlayer) {
           votedPlayer.style.background = "#36273e";
-          clickedPlayer.style.background = "blue";
+          clickedPlayer.style.background = "red";
           votedPlayer = clickedPlayer;
         }
         vote = clickedPlayer.id;
@@ -243,10 +243,11 @@ async function dayMode() {
   const activePlayersDiv = [];
   alive.forEach((id) => {
     activePlayersDiv.push(document.getElementById(`${id}`));
-    console.log(activePlayersDiv);
   });
 
   // Call vote function
+  console.log("alive player: ", alive);
+  console.log("current player: ", currentPlayer.id);
   if (alive.includes(currentPlayer.id)) {
     installVoteWerewolfClickEvent(activePlayersDiv);
   }
