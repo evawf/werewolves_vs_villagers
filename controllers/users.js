@@ -32,7 +32,6 @@ class Users extends Base {
         },
       });
       if (existingUser) {
-        console.log("existing user!");
         res.send("Existing user!");
       } else {
         const result = await this.model.create(user);

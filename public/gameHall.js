@@ -26,7 +26,6 @@ createRoomBtn.addEventListener("click", () => {
 newGameBtn.addEventListener("click", async () => {
   const gameName = document.getElementById("gameName").value;
   const ccurrentUserId = document.getElementById("currentUserId").value;
-  console.log(ccurrentUserId);
   if (gameName.trim("")) {
     const newGame = {
       name: document.getElementById("gameName").value,
@@ -40,18 +39,12 @@ newGameBtn.addEventListener("click", async () => {
   } else {
     alert("Game name is empty!");
   }
-  // let result = await axios.get(`/games/${gameId}/getCurrentPlayer`);
-  // currentPlayer = {
-  //   id: result.data.player?.userId,
-  //   // role: result.data.player?.role,
-  // };
 });
 
 // Display new game room
 async function showNewGameRooms() {
   const result = await axios.get("/getGamesInfo");
   gamesInfo = result.data.games;
-  console.log(result.data);
   if (result.data === "No game") {
     outputMsgDiv.textContent =
       "Create a game room then wait for your friends to join you.";
@@ -71,6 +64,7 @@ async function showNewGameRooms() {
           currentGamesArr.push(game);
           const newGameDiv = document.createElement("div");
           newGameDiv.className = "game";
+          newGameDiv.id = `game${game.id}`;
           const gameLink = document.createElement("span");
           gameLink.className = "gameName";
           gameLink.id = `${game.id}`;
@@ -82,11 +76,8 @@ async function showNewGameRooms() {
             gameLink.href = "none";
           }
           newGameDiv.append(gameLink);
-          console.log("owner id: ", game.ownerId);
           const ccurrentUserId = document.getElementById("currentUserId").value;
-          console.log("currentPlayer id: ", ccurrentUserId);
           if (ccurrentUserId === String(game.ownerId)) {
-            console.log("you are the owner");
             const button = document.createElement("button");
             button.className = "deleteGameBtn";
             button.id = `game${game.id}`;
@@ -99,17 +90,22 @@ async function showNewGameRooms() {
     }
 
     // If there is a game deleted by owner;
+    console.log("current: ", gamesInfo);
+    console.log("previous: ", currentGamesArr);
     if (gamesInfo.length < currentGamesArr.length) {
       currentGamesArr.forEach((game) => {
         if (
-          !currentGamesArr
+          !gamesInfo
             .map((g) => {
               return g.id;
             })
             .includes(game.id)
         ) {
           currentGamesArr.splice(currentGamesArr.indexOf(game), 1);
-          gameDiv = document.getElementById(`${game.id}`);
+          console.log("to delete game: ", game);
+          gameDiv = document.getElementById(`game${game.id}`);
+          console.log("to delete game div: ", gameDiv);
+
           gameDiv.remove();
         }
       });
@@ -118,14 +114,12 @@ async function showNewGameRooms() {
     const games = document.querySelectorAll(".gameName");
     games.forEach((game) => {
       game.addEventListener("click", async (e) => {
-        console.log("clicked");
         let clickedGame = e.currentTarget;
         const gameId = clickedGame.id;
         const result = await axios.get(`/games/${gameId}/players`);
         const playerIdArr = result.data.map((p) => {
           return p.id;
         });
-        console.log(playerIdArr);
         const ccurrentUserId = document.getElementById("currentUserId").value;
         const joinedPlayersNum = result.data.length;
         if (joinedPlayersNum <= numOfPlayers) {
@@ -144,15 +138,18 @@ async function showNewGameRooms() {
       btn.addEventListener("click", async (e) => {
         const gameId = Number(btn.id.slice(4));
         const result = await axios.get(`/games/${gameId}/players`);
-        console.log(result.data.length);
         if (result.data.length === 0) {
-          await axios.post(`/games/${gameId}/delete`);
+          try {
+            await axios.post(`/games/${gameId}/delete`);
+            window.location.href = `/gameHall`;
+          } catch (error) {
+            window.location.href = `/error`;
+          }
         }
       });
     });
-    // }
   }
-  // setTimeout(showNewGameRooms.bind(), 2000);
+  setTimeout(showNewGameRooms.bind(), 2000);
 }
 
 showNewGameRooms();

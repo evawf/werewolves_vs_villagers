@@ -74,7 +74,6 @@ async function WaitForPlayers(gameId) {
     return;
   }
   if (gameState === "Day") {
-    console.log("day mode");
     dayMode();
     return;
   }
@@ -124,7 +123,6 @@ async function nightMode() {
 
   for (let i = 0; i < currentPlayersArr.length; i += 1) {
     if (!alive.includes(currentPlayersArr[i].id)) {
-      // playersDiv[i].style.background = "gray";
       if (currentPlayer.id !== currentPlayersArr[i].id) {
         const pRole = document.createElement("p");
         outputMsgContainer.textContent = `Poor ${playersDiv[i].textContent} got killed!`;
@@ -222,7 +220,6 @@ async function dayMode() {
 
   for (let i = 0; i < currentPlayersArr.length; i += 1) {
     if (!alive.includes(currentPlayersArr[i].id)) {
-      // playersDiv[i].style.background = "gray";
       if (currentPlayer.id !== currentPlayersArr[i].id) {
         const pRole = document.createElement("p");
         outputMsgContainer.textContent = `Day - Poor villager ${playersDiv[i].textContent} got killed! Now let's find out who's the werewolf!`;
@@ -246,8 +243,6 @@ async function dayMode() {
   });
 
   // Call vote function
-  console.log("alive player: ", alive);
-  console.log("current player: ", currentPlayer.id);
   if (alive.includes(currentPlayer.id)) {
     installVoteWerewolfClickEvent(activePlayersDiv);
   }

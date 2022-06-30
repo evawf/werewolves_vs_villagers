@@ -54,7 +54,6 @@ class Games extends Base {
         include: [db.UserGame],
         order: [["updatedAt", "DESC"]],
       });
-      console.log("gameInfo: ", games);
       if (games === undefined) {
       } else {
         res.json({ games });
@@ -67,10 +66,7 @@ class Games extends Base {
 
   async addNewGame(req, res) {
     const newGame = req.body;
-    console.log("New game: ", newGame);
-
     const result = await this.model.create(newGame);
-    console.log("created:", result);
     res.json({ result });
   }
 
@@ -455,8 +451,13 @@ class Games extends Base {
     console.log("gameId: ", gameId);
     const game = await this.model.findByPk(gameId);
     console.log("game info: ", game);
-    await game.destroy();
-    res.send("Game deleted!");
+    try {
+      await game.destroy();
+      res.send("Game deleted!");
+    } catch (error) {
+      console.log("Error message: ", error);
+      res.send("Room can't be deleted.");
+    }
   }
 }
 
