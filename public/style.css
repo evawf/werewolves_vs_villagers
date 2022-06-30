@@ -45,7 +45,7 @@ html {
   padding: 0;
   width: 100%;
   height: 100%;
-  background: url("background.jpg");
+  background-image: url("background.jpg");
   background-size: cover;
   background-repeat: no-repeat;
   align-content: center;
@@ -56,15 +56,24 @@ html {
 }
 
 #gameRules {
-  background: #868e96;
+  width: 350px;
+  background: #e9ecefdf;
+  background-size: cover;
+
   margin: 0 10px 5px 10px;
   padding: 10px;
-  border-radius: 5px;
+  border-radius: 20px;
   color: #000;
 }
 
 #gameRules li {
   color: #000;
+}
+
+#gameHallBtn {
+  border-radius: 10px;
+  width: 350px;
+  height: 40px;
 }
 
 #gameRoomsContainer {

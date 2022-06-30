@@ -128,7 +128,7 @@ async function showNewGameRooms() {
         console.log(playerIdArr);
         const ccurrentUserId = document.getElementById("currentUserId").value;
         const joinedPlayersNum = result.data.length;
-        if (joinedPlayersNum < numOfPlayers) {
+        if (joinedPlayersNum <= numOfPlayers) {
           await axios.post("/games/joinGame", { gameId });
           window.location.href = `/games/${gameId}`;
         } else if (playerIdArr.includes(ccurrentUserId)) {

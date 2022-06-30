@@ -97,7 +97,7 @@ function installVoteVillagerClickEvent(playersDivs) {
           votedVillager = clickedVillager;
         }
         if (votedVillager !== null && votedVillager !== clickedVillager) {
-          votedVillager.style.background = "none";
+          votedVillager.style.background = "#36273e";
           clickedVillager.style.background = "red";
           votedVillager = clickedVillager;
         }
@@ -124,7 +124,7 @@ async function nightMode() {
 
   for (let i = 0; i < currentPlayersArr.length; i += 1) {
     if (!alive.includes(currentPlayersArr[i].id)) {
-      playersDiv[i].style.background = "gray";
+      // playersDiv[i].style.background = "gray";
       if (currentPlayer.id !== currentPlayersArr[i].id) {
         const pRole = document.createElement("p");
         outputMsgContainer.textContent = `Poor ${playersDiv[i].textContent} got killed!`;
@@ -198,7 +198,7 @@ function installVoteWerewolfClickEvent(playersDivs) {
           votedPlayer = clickedPlayer;
         }
         if (votedPlayer !== null && votedPlayer !== clickedPlayer) {
-          votedPlayer.style.background = "none";
+          votedPlayer.style.background = "#36273e";
           clickedPlayer.style.background = "blue";
           votedPlayer = clickedPlayer;
         }
@@ -243,6 +243,7 @@ async function dayMode() {
   const activePlayersDiv = [];
   alive.forEach((id) => {
     activePlayersDiv.push(document.getElementById(`${id}`));
+    console.log(activePlayersDiv);
   });
 
   // Call vote function
