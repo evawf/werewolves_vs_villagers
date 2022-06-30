@@ -90,8 +90,6 @@ async function showNewGameRooms() {
     }
 
     // If there is a game deleted by owner;
-    console.log("current: ", gamesInfo);
-    console.log("previous: ", currentGamesArr);
     if (gamesInfo.length < currentGamesArr.length) {
       currentGamesArr.forEach((game) => {
         if (
@@ -102,10 +100,7 @@ async function showNewGameRooms() {
             .includes(game.id)
         ) {
           currentGamesArr.splice(currentGamesArr.indexOf(game), 1);
-          console.log("to delete game: ", game);
           gameDiv = document.getElementById(`game${game.id}`);
-          console.log("to delete game div: ", gameDiv);
-
           gameDiv.remove();
         }
       });
@@ -149,7 +144,7 @@ async function showNewGameRooms() {
       });
     });
   }
-  setTimeout(showNewGameRooms.bind(), 2000);
+  // setTimeout(showNewGameRooms.bind(), 2000);
 }
 
 showNewGameRooms();
