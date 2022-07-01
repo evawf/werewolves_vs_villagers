@@ -4,7 +4,7 @@ const gameId = document.getElementById("gameId").value;
 const quitBtn = document.getElementById("quitBtn");
 let currentPlayersArr = [];
 let currentPlayer;
-const numOfPlayers = 3;
+const numOfPlayers = 4;
 
 async function WaitForPlayers(gameId) {
   quitBtn.addEventListener("click", quitGame);
@@ -14,7 +14,10 @@ async function WaitForPlayers(gameId) {
     role: result.data.player?.role,
   };
   result = await axios.get(`/games/${gameId}/info`);
+<<<<<<< HEAD
 
+=======
+>>>>>>> feature/sixPlayers
   // If there any new players:
   if (result.data.players.length > currentPlayersArr.length) {
     result.data.players.forEach((player) => {
@@ -26,13 +29,15 @@ async function WaitForPlayers(gameId) {
           .includes(player.id)
       ) {
         currentPlayersArr.push(player);
+<<<<<<< HEAD
         const pMsg = document.createElement("p");
         outputMsgContainer.append(pMsg);
+=======
+>>>>>>> feature/sixPlayers
 
         if (result.data.players.length < numOfPlayers) {
-          const pWait = document.createElement("p");
-          pWait.textContent = "Please wait for more players to join the room.";
-          outputMsgContainer.append(pWait);
+          outputMsgContainer.textContent =
+            "Please wait for more players to join the room.";
         }
         const newPlayerDiv = document.createElement("div");
         const pName = document.createElement("p");
@@ -68,7 +73,7 @@ async function WaitForPlayers(gameId) {
 
   let gameState = result.data.gameState;
   if (gameState === "Waiting") {
-    // setTimeout(WaitForPlayers.bind(null, gameId), 2000);
+    setTimeout(WaitForPlayers.bind(null, gameId), 2000);
     return;
   }
 
@@ -77,7 +82,6 @@ async function WaitForPlayers(gameId) {
     return;
   }
   if (gameState === "Day") {
-    console.log("day mode");
     dayMode();
     return;
   }
@@ -100,7 +104,7 @@ function installVoteVillagerClickEvent(playersDivs) {
           votedVillager = clickedVillager;
         }
         if (votedVillager !== null && votedVillager !== clickedVillager) {
-          votedVillager.style.background = "none";
+          votedVillager.style.background = "#36273e";
           clickedVillager.style.background = "red";
           votedVillager = clickedVillager;
         }
@@ -109,7 +113,7 @@ function installVoteVillagerClickEvent(playersDivs) {
         const postVote = await axios.post(`/games/${gameId}/voteVillager`, {
           vote,
         });
-        return vote;
+        return;
       });
     }
   });
@@ -117,14 +121,12 @@ function installVoteVillagerClickEvent(playersDivs) {
 
 async function nightMode() {
   quitBtn.style.display = "none";
-  const p = document.createElement("p");
-  p.textContent = "Game start: NIGHT - Werewolf pick a villager to kill!";
-  outputMsgContainer.append(p);
-
+  outputMsgContainer.textContent = "NIGHT - Werewolf pick a villager to kill!";
   document.body.style.background = "#4b5875";
   const result = await axios.get(`/games/${gameId}/players`);
   console.log(result.data);
   const alive = result.data.filter((p) => p.alive).map((p) => p.userId);
+<<<<<<< HEAD
   console.log(alive);
   const playersDiv = document.querySelectorAll(".player");
 
@@ -152,6 +154,44 @@ async function nightMode() {
     }
   }
   //*************************************** */
+=======
+  const dead = result.data.filter((p) => !p.alive);
+
+  const playersDiv = document.querySelectorAll(".player");
+
+  for (let i = 0; i < currentPlayersArr.length; i += 1) {
+    if (!alive.includes(currentPlayersArr[i].id)) {
+      if (currentPlayer.id !== currentPlayersArr[i].id) {
+        const pRole = document.createElement("p");
+        outputMsgContainer.textContent = `Poor ${playersDiv[i].textContent} got killed!`;
+        for (let j = 0; j < dead.length; j++) {
+          if (currentPlayersArr[i].id === dead[j].userId) {
+            pRole.textContent = dead[j].role; // Can use villager image as background
+            if (dead[j].role === "Villager") {
+              playersDiv[i].style.backgroundImage =
+                "url('../imgs/villager.jpg')";
+              playersDiv[i].style.color = "white";
+            } else {
+              playersDiv[i].style.backgroundImage =
+                "url('../imgs/werewolf.jpg')";
+            }
+            playersDiv[i].style.backgroundSize = "100px 100px";
+          }
+        }
+        playersDiv[i].append(pRole);
+      } else {
+        outputMsgContainer.textContent += `Sorry, you got killed!`;
+        if (currentPlayer.role === "Villager") {
+          playersDiv[i].style.backgroundImage = "url('../imgs/villager.jpg')";
+          playersDiv[i].style.color = "white";
+        } else {
+          playersDiv[i].style.backgroundImage = "url('../imgs/werewolf.jpg')";
+        }
+        playersDiv[i].style.backgroundSize = "100px 100px";
+      }
+    }
+  }
+>>>>>>> feature/sixPlayers
 
   // Werewolf select a villager
   if (currentPlayer.role === "Werewolf") {
@@ -168,7 +208,7 @@ async function waitForNightToFinish() {
   const result = await axios.get(`/games/${gameId}/info`);
   const game = result.data;
   if (game.gameState === "Night") {
-    // setTimeout(waitForNightToFinish, 2000);
+    setTimeout(waitForNightToFinish, 2000);
     return;
   }
 
@@ -191,20 +231,19 @@ function installVoteWerewolfClickEvent(playersDivs) {
       player.addEventListener("click", async function click(e) {
         const clickedPlayer = e.currentTarget;
         if (votedPlayer === null) {
-          clickedPlayer.style.background = "blue";
+          clickedPlayer.style.background = "red";
           votedPlayer = clickedPlayer;
         }
         if (votedPlayer !== null && votedPlayer !== clickedPlayer) {
-          votedPlayer.style.background = "none";
-          clickedPlayer.style.background = "blue";
+          votedPlayer.style.background = "#36273e";
+          clickedPlayer.style.background = "red";
           votedPlayer = clickedPlayer;
         }
         vote = clickedPlayer.id;
         const postVote = await axios.post(`/games/${gameId}/voteWereWolf`, {
           vote,
         });
-        console.log(postVote.data);
-        return;
+        return postVote;
       });
     }
   });
@@ -215,23 +254,36 @@ async function dayMode() {
   document.body.style.background = "#fcd9b6";
   const result = await axios.get(`/games/${gameId}/players`);
   const alive = result.data.filter((p) => p.alive).map((p) => p.userId);
+  const dead = result.data.filter((p) => !p.alive);
   const playersDiv = document.querySelectorAll(".player");
+<<<<<<< HEAD
   console.log(currentPlayersArr);
+=======
+
+>>>>>>> feature/sixPlayers
   for (let i = 0; i < currentPlayersArr.length; i += 1) {
     if (!alive.includes(currentPlayersArr[i].id)) {
-      playersDiv[i].style.background = "gray";
       if (currentPlayer.id !== currentPlayersArr[i].id) {
+<<<<<<< HEAD
         const pMsg = document.createElement("p");
         const pRole = document.createElement("p");
         pMsg.textContent = `Day: Poor villager ${playersDiv[i].textContent} got killed! Now let's find out who's the werewolf!`;
         pRole.textContent = "Villager"; // Can use villager image as background
         outputMsgContainer.append(pMsg);
+=======
+        const pRole = document.createElement("p");
+        outputMsgContainer.textContent = `Day - Poor villager ${playersDiv[i].textContent} got killed! Now let's find out who's the werewolf!`;
+        pRole.textContent = "Villager";
+
+        // Can use villager image as background
+>>>>>>> feature/sixPlayers
         playersDiv[i].append(pRole);
       } else {
-        const p3 = document.createElement("p");
-        p3.textContent += `Sorry, you got killed by werewolf!`;
-        outputMsgContainer.append(p3);
+        outputMsgContainer.textContent = `Sorry, you got killed by werewolf!`;
       }
+      playersDiv[i].style.backgroundImage = "url('../imgs/villager.jpg')";
+      playersDiv[i].style.backgroundSize = "100px 100px";
+      playersDiv[i].style.color = "white";
     }
   }
 
@@ -252,7 +304,7 @@ async function waitForDayToFinish() {
   const result = await axios.get(`/games/${gameId}/info`);
   const game = result.data;
   if (game.gameState === "Day") {
-    // setTimeout(waitForDayToFinish, 2000);
+    setTimeout(waitForDayToFinish, 2000);
     return;
   }
 
@@ -269,37 +321,45 @@ async function waitForDayToFinish() {
 async function showWinnerInfo() {
   document.body.style.background = "none";
   const result = await axios.get(`/games/${gameId}/players`);
-  console.log(result.data);
   const players = result.data;
   let alivePlayers = players.filter((p) => p.alive);
+<<<<<<< HEAD
   console.log(alivePlayers);
   if (alivePlayers.length > 1) {
+=======
+  const werewolves = alivePlayers.filter((p) => p.role === "Werewolf");
+  const villagers = alivePlayers.filter((p) => p.role === "Villager");
+
+  if (werewolves.length === 0) {
+    alert("Villagers Won!");
+    initGame();
+    return;
+  } else if (villagers.length === 0) {
+    alert("Werewolves Won!");
+    initGame();
+    return;
+  } else {
+>>>>>>> feature/sixPlayers
     alert("Game over! No winner.");
     initGame();
     return;
   }
-  const winners = alivePlayers[0].role;
-  console.log(winners);
-  const pWinner = document.createElement("p");
-  pWinner.textContent = `Congrats! The winner is ${winners}! Click the button to play again!`;
-  outputMsgContainer.append(pWinner);
-  alert(`Congrats! The winner is ${winners}.`);
-  initGame();
 }
 
 async function initGame() {
   await axios.post(`/games/${gameId}/init`);
   window.location.href = `/gameHall`;
+  return;
 }
 
 async function quitGame() {
   const result = await axios.post(`/games/${gameId}/quitGame`);
   const leavedPlayer = result.data.leavedPlayer.user;
-  console.log(leavedPlayer);
   const leavedPlayerDiv = document.getElementById(`${leavedPlayer.id}`);
   leavedPlayerDiv.remove();
   outputMsgContainer.textContent = `${leavedPlayer.displayName} left this room.`;
   window.location.href = `/gameHall`; // Redirect to game hall
+  return;
 }
 
 WaitForPlayers(gameId);

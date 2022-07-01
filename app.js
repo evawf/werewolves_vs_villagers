@@ -94,7 +94,7 @@ io.on("connection", (socket) => {
       if (room !== socket.id) {
         io.to(data.game).emit(
           "chat message",
-          data.userName + " has joined game " + data.game
+          data.userName + " has joined game "
         );
       }
     }

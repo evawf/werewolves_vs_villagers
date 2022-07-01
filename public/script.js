@@ -60,13 +60,17 @@ submitBtn.addEventListener("click", async () => {
     email: document.getElementById("email_signup").value,
     password: document.getElementById("password_signup").value,
   };
-  const result = await axios.post("/signup", userData);
-  if (result.data !== "Existing user!") {
-    loginDiv.style.display = "block";
-    signupBtn.style.display = "none";
-    signupDiv.style.display = "none";
-  } else {
-    console.log(result.data);
+  try {
+    const result = await axios.post("/signup", userData);
+    if (result.data !== "Existing user!") {
+      loginDiv.style.display = "block";
+      signupBtn.style.display = "none";
+      signupDiv.style.display = "none";
+    } else {
+      alert("Existing user!");
+    }
+  } catch (error) {
+    console.log("Error message: ", error);
   }
 });
 

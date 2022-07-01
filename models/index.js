@@ -50,7 +50,7 @@ db.User = initUserModel(sequelize, Sequelize.DataTypes);
 db.Game = initGameModel(sequelize, Sequelize.DataTypes);
 db.UserGame = initUserGameModel(sequelize, Sequelize.DataTypes);
 
-// Define models' assosiation
+// Define models' assosiation: Many to many
 db.User.belongsToMany(db.Game, { through: db.UserGame });
 db.Game.belongsToMany(db.User, { through: db.UserGame });
 
@@ -58,6 +58,10 @@ db.User.hasMany(db.UserGame);
 db.UserGame.belongsTo(db.User);
 db.Game.hasMany(db.UserGame);
 db.UserGame.belongsTo(db.Game);
+
+// One to Many
+// db.User.hasMany(db.Game);
+// db.Game.belongsTo(db.User);
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
