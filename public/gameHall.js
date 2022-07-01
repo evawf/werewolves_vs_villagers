@@ -22,7 +22,7 @@ createRoomBtn.addEventListener("click", () => {
   createRoomBtn.style.display = "none";
 });
 
-// Create Game game
+// Create Game room
 newGameBtn.addEventListener("click", async () => {
   const gameName = document.getElementById("gameName").value;
   const ccurrentUserId = document.getElementById("currentUserId").value;
@@ -138,7 +138,7 @@ async function showNewGameRooms() {
             await axios.post(`/games/${gameId}/delete`);
             window.location.href = `/gameHall`;
           } catch (error) {
-            window.location.href = `/error`;
+            alert("Error message: ", error);
           }
         }
       });
