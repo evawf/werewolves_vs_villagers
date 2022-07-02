@@ -13,7 +13,6 @@ async function WaitForPlayers(gameId) {
     id: result.data.player?.userId,
     role: result.data.player?.role,
   };
-
   result = await axios.get(`/games/${gameId}/info`);
   // If there any new players:
   if (result.data.players.length > currentPlayersArr.length) {
@@ -116,6 +115,7 @@ async function nightMode() {
   outputMsgContainer.textContent = "NIGHT - Werewolf pick a villager to kill!";
   document.body.style.background = "#4b5875";
   const result = await axios.get(`/games/${gameId}/players`);
+  console.log(result.data);
   const alive = result.data.filter((p) => p.alive).map((p) => p.userId);
   const dead = result.data.filter((p) => !p.alive);
 
@@ -217,7 +217,6 @@ async function dayMode() {
   const alive = result.data.filter((p) => p.alive).map((p) => p.userId);
   const dead = result.data.filter((p) => !p.alive);
   const playersDiv = document.querySelectorAll(".player");
-
   for (let i = 0; i < currentPlayersArr.length; i += 1) {
     if (!alive.includes(currentPlayersArr[i].id)) {
       if (currentPlayer.id !== currentPlayersArr[i].id) {
